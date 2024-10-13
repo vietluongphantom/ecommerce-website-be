@@ -3,6 +3,7 @@ package com.ptit.e_commerce_website_be.do_an_nhom.models.entities;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.ptit.e_commerce_website_be.do_an_nhom.models.enums.Gender;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
