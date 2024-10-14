@@ -9,15 +9,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-//@RequestMapping("/api/v1/user")
+@RequestMapping("/api/v1/user")
 @RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
 
-    @GetMapping("")
+    @GetMapping("/signup")
     public CommonResult<User> signup( @RequestBody RegisterUserDto registerUserDto){
-        System.out.println("loi aaaaaaaaaaaaaaaaaaaaaaa");
         User user = userService.signUp(registerUserDto);
         return CommonResult.success(user);
     }
