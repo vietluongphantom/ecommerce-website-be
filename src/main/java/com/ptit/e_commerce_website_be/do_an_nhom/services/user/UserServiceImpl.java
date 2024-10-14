@@ -1,12 +1,17 @@
 package com.ptit.e_commerce_website_be.do_an_nhom.services.user;
 
+import com.ptit.e_commerce_website_be.do_an_nhom.exceptions.DataNotFoundException;
 import com.ptit.e_commerce_website_be.do_an_nhom.exceptions.UserAlreadyExistedException;
+import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.LoginUserDto;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.RegisterUserDto;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.Role;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.User;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.enums.RoleEnum;
+import com.ptit.e_commerce_website_be.do_an_nhom.models.response.LoginResponse;
 import com.ptit.e_commerce_website_be.do_an_nhom.repositories.RoleRepository;
 import com.ptit.e_commerce_website_be.do_an_nhom.repositories.UserRepository;
+import com.ptit.e_commerce_website_be.do_an_nhom.services.JwtService;
+import com.ptit.e_commerce_website_be.do_an_nhom.services.auth.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,7 +28,9 @@ import java.util.Set;
 public class UserServiceImpl implements UserService{
 
     private final UserRepository userRepository;
-//    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationService authenticationService;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
     private final RoleRepository roleRepository;
 
     @Override
@@ -39,14 +46,11 @@ public class UserServiceImpl implements UserService{
         if (optionalUser.isPresent()) {
             User existingUser = optionalUser.get();
             Set<Role> existingRoles = existingUser.getRoles();
-//            Role userRole = Role.builder().name(RoleEnum.USER).build();
-
             if (existingRoles.contains(userRole)) {
                 throw new UserAlreadyExistedException(input.getEmail());
             } else {
                 existingRoles.add(userRole);
                 existingUser.setRoles(existingRoles);
-//                sendMail(input.getEmail());
                 return userRepository.save(existingUser);
             }
         } else {
@@ -54,7 +58,8 @@ public class UserServiceImpl implements UserService{
             var user = User.builder()
                     .fullName(input.getFullName())
                     .email(input.getEmail())
-                    .password(input.getPassword())
+                    .status(Boolean.TRUE)
+                    .password(passwordEncoder.encode(input.getPassword()))
                     .phone(input.getPhone())
                     .gender(input.getGender())
                     .roles(roles)
@@ -62,5 +67,21 @@ public class UserServiceImpl implements UserService{
             return userRepository.save(user);
         }
     }
+    @Override
+    public LoginResponse authenticateUserAndGetLoginResponse(LoginUserDto loginUserDto){
+        return authenticationService.authenticateUserAndGetLoginResponse(loginUserDto);
+    }
 
+    @Override
+    public User getAuthenticatedUser() {
+        return (User) authenticationService.getAuthentication().getPrincipal();
+    }
+
+    @Override
+    public User getUserDetailsFromToken(String token){
+        String username = jwtService.extractUsername(token);
+        Optional<User> user;
+        user = userRepository.findByEmail(username);
+        return user.orElseThrow(() -> new DataNotFoundException("User not found"));
+    }
 }
