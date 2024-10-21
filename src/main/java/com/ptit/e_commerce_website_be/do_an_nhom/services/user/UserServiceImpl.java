@@ -5,10 +5,12 @@ import com.ptit.e_commerce_website_be.do_an_nhom.exceptions.UserAlreadyExistedEx
 import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.LoginUserDto;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.RegisterUserDto;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.Role;
+import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.Token;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.User;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.enums.RoleEnum;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.response.LoginResponse;
 import com.ptit.e_commerce_website_be.do_an_nhom.repositories.RoleRepository;
+import com.ptit.e_commerce_website_be.do_an_nhom.repositories.TokenRepository;
 import com.ptit.e_commerce_website_be.do_an_nhom.repositories.UserRepository;
 import com.ptit.e_commerce_website_be.do_an_nhom.services.JwtService;
 import com.ptit.e_commerce_website_be.do_an_nhom.services.auth.AuthenticationService;
@@ -31,6 +33,7 @@ public class UserServiceImpl implements UserService{
     private final AuthenticationService authenticationService;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final TokenRepository tokenRepository;
     private final RoleRepository roleRepository;
 
     @Override
@@ -83,5 +86,11 @@ public class UserServiceImpl implements UserService{
         Optional<User> user;
         user = userRepository.findByEmail(username);
         return user.orElseThrow(() -> new DataNotFoundException("User not found"));
+    }
+
+    @Override
+    public User getUserDetailsFromRefreshToken(String refreshToken){
+        Token existingToken = tokenRepository.findByRefreshToken(refreshToken);
+        return getUserDetailsFromToken(existingToken.getToken());
     }
 }

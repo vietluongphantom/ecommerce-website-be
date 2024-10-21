@@ -10,4 +10,5 @@ public interface UserService {
     LoginResponse authenticateUserAndGetLoginResponse(LoginUserDto loginUserDto);
     User getAuthenticatedUser();
     User getUserDetailsFromToken(String token);
+    User getUserDetailsFromRefreshToken(String refreshToken);
 }

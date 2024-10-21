@@ -82,4 +82,10 @@ public class AuthenticationServiceImpl implements AuthenticationService{
 
         return matcher.matches();
     }
+
+    @Override
+    public LoginResponse authenticateAdminAndGetLoginResponse(LoginUserDto loginUserDto){
+        User authenticatedUser = authenticateByRole(loginUserDto, "ADMIN");
+        return buildLoginResponse(authenticatedUser);
+    }
 }
