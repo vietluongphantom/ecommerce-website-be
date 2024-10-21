@@ -5,8 +5,8 @@ spring:
     name: ecommerce
   datasource:
     url: jdbc:mysql://localhost:3306/doAn?serverTimezone=UTC&allowPublicKeyRetrieval=true
-    username: springstudent
-    password: springstudent
+    username: root
+    password: kien0702
   jpa:
     hibernate:
       ddl-auto: update
@@ -18,6 +18,6 @@ spring:
 
 security:
   jwt:
-    secret-key: ${JWT_SECRET_KEY}
+    secret-key: 695769324F787162696C62336E5A354E67585A2F6E336C344737526D6A6954753033533436336D315471513D
     expiration-time: 10000000
     expiration-refresh-token: 80000000
