@@ -63,7 +63,11 @@ public class AuthenticationServiceImpl implements AuthenticationService{
         return buildLoginResponse(authenticatedUser);
     }
 
-
+    @Override
+    public LoginResponse authenticateSellerAndGetLoginResponse(LoginUserDto loginUserDto){
+        User authenticatedUser = authenticateByRole(loginUserDto, "SELLER");
+        return buildLoginResponse(authenticatedUser);
+    }
     @Override
     public LoginResponse buildLoginResponse(User authenticatedUser) {
         String jwtToken = jwtService.generateToken(authenticatedUser);

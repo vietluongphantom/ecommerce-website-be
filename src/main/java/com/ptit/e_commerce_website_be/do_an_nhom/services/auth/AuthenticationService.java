@@ -9,7 +9,9 @@ import org.springframework.security.core.Authentication;
 public interface AuthenticationService {
     Authentication getAuthentication();
     User authenticateByRole(LoginUserDto loginUserDto, String role);
+
     LoginResponse authenticateUserAndGetLoginResponse(LoginUserDto loginUserDto);
+    LoginResponse authenticateSellerAndGetLoginResponse(LoginUserDto loginUserDto);
     LoginResponse buildLoginResponse(User authenticatedUser);
     LoginResponse authenticateAdminAndGetLoginResponse(LoginUserDto loginUserDto);
     boolean checkValidEmail(RegisterUserDto registerUserDto);

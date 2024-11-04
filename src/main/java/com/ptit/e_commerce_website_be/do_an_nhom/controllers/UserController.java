@@ -23,6 +23,7 @@ public class UserController {
     @PostMapping("/signUpNewVersion")
     public CommonResult<User> signup(@Valid @RequestBody RegisterUserDto registerUserDto){
         User user = userService.signUp(registerUserDto);
+        System.out.println("OK");
         return CommonResult.success(user);
     }
 
