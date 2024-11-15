@@ -1,11 +1,13 @@
 package com.ptit.e_commerce_website_be.do_an_nhom.services.productitem;
 
 
+import com.ptit.e_commerce_website_be.do_an_nhom.exceptions.AlreadyExistedException;
+import com.ptit.e_commerce_website_be.do_an_nhom.exceptions.DataNotFoundException;
+import com.ptit.e_commerce_website_be.do_an_nhom.exceptions.QuantityExceededException;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.DetailProductItemDTO;
-import com.ptit.e_commerce_website_be.do_an_nhom.repositories.ImagesRepository;
-import com.ptit.e_commerce_website_be.do_an_nhom.repositories.ProductItemRepository;
-import com.ptit.e_commerce_website_be.do_an_nhom.repositories.ProductRepository;
-import com.ptit.e_commerce_website_be.do_an_nhom.repositories.ShopRepository;
+import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.ProductItemAttributesDTO;
+import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.*;
+import com.ptit.e_commerce_website_be.do_an_nhom.repositories.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
