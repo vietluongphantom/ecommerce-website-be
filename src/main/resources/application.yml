@@ -6,7 +6,7 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/doAn?serverTimezone=UTC&allowPublicKeyRetrieval=true
     username: root
-    password: kien0702
+    password: 1235
   jpa:
     hibernate:
       ddl-auto: update
