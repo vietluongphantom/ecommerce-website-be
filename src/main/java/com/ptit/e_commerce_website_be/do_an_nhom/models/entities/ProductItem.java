@@ -3,6 +3,7 @@ package com.ptit.e_commerce_website_be.do_an_nhom.models.entities;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.DetailInventoryDTO;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.ProductItemAttributesDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
