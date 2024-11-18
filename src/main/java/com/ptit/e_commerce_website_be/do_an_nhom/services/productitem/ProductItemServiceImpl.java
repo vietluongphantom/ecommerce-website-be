@@ -29,7 +29,7 @@ public class ProductItemServiceImpl implements ProductItemService
 
     private  final CartItemRepository cartItemRepository;
 
-    private final OrderItemRepository orderItemRepository ;
+//    private final OrderItemRepository orderItemRepository ;
 
     private final ProductItemAttributesRepository productItemAttributesRepository;
 

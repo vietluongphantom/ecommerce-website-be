@@ -1,12 +1,17 @@
 server:
   port: 3000
+
 spring:
   application:
     name: ecommerce
   datasource:
-    url: jdbc:mysql://localhost:3306/doAn?serverTimezone=UTC&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://mysql8-container:3306/ecommercedb?serverTimezone=UTC&allowPublicKeyRetrieval=true
     username: root
-    password: 1235
+    password: kien0702
+  data:
+    redis:
+      host: redis-container
+      port: 6379
   jpa:
     hibernate:
       ddl-auto: update
@@ -14,10 +19,44 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
-
+  main:
+    banner-mode: off
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: khanhquocphamdev@gmail.com
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
 
 security:
   jwt:
-    secret-key: 695769324F787162696C62336E5A354E67585A2F6E336C344737526D6A6954753033533436336D315471513D
+    secret-key: ${JWT_SECRET_KEY}
     expiration-time: 10000000
     expiration-refresh-token: 80000000
+
+logging:
+  level:
+    root: INFO
+    com.ghtk.ecommercewebsite: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+
+cloudinary:
+  upload:
+    file:
+      cloud-name: dqgarzqlx
+      api-key: 889522243963762
+      api-secret: ${CLOUDINARY_SECRET_KEY}
+
+stripe:
+  api:
+    key: ${STRIPE_API_KEY}

@@ -1,5 +1,7 @@
 package com.ptit.e_commerce_website_be.do_an_nhom.services.user;
 
+import com.ptit.e_commerce_website_be.do_an_nhom.exceptions.DataNotFoundException;
+import com.ptit.e_commerce_website_be.do_an_nhom.exceptions.UserAlreadyExistedException;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.LoginUserDto;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.RegisterUserDto;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.UserDTO;
@@ -9,8 +11,8 @@ import com.ptit.e_commerce_website_be.do_an_nhom.models.response.LoginResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
-
 
 public interface UserService {
     User signUp(RegisterUserDto input);

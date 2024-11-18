@@ -6,8 +6,8 @@ import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.*;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.Seller;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.Shop;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.response.CommonResult;
-
-
+import com.ptit.e_commerce_website_be.do_an_nhom.services.OtpService;
+import com.ptit.e_commerce_website_be.do_an_nhom.services.RedisOtpService;
 import com.ptit.e_commerce_website_be.do_an_nhom.services.seller.SellerService;
 import com.ptit.e_commerce_website_be.do_an_nhom.services.user.UserService;
 import jakarta.validation.Valid;
@@ -31,9 +31,9 @@ import java.util.Objects;
 public class SellerController {
 
     private final SellerService sellerService;
-
+    private final RedisOtpService redisOtpService;
     private final UserService userService;
-
+    private final OtpService otpService;
 
     @PostMapping("/signUpNewVersion")
     public CommonResult<User> signUpNewestVersion(@Valid @RequestBody RegisterUserDto registerUserDto) {
@@ -42,8 +42,22 @@ public class SellerController {
 
 
     // New version here
+    @PostMapping("/verifyOtp")
+    public CommonResult<String> verifyOtpSellerNewestVersion(@RequestBody Map<String, String> requestBody) {
+        String email = requestBody.get("email");
+        Integer otp = Integer.parseInt(requestBody.get("otp"));
+        boolean isOtpValid = redisOtpService.verifyOtp(email, otp);
+        if (!isOtpValid) { return CommonResult.failed("Invalid OTP"); }
+        userService.activateUser(email);
+        return CommonResult.success("Seller account activated successfully");
+    }
 
     // New version here
+    @PostMapping("/resendOtp")
+    public CommonResult<String> resendOtpNewestVersion(@RequestBody Map<String, String> requestBody) {
+        String email = requestBody.get("email");
+        return otpService.resendOtpForSigningUp(email);
+    }
 
     @PostMapping("/login")
     public CommonResult<LoginResponse> authenticate(@Valid @RequestBody LoginUserDto loginUserDto){
