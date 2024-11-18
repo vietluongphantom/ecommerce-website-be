@@ -43,7 +43,7 @@ public class ShopController {
 
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('SELLER')")
+//    @PreAuthorize("hasAnyRole('SELLER')")
     public CommonResult<DetailShopInfoDTO> getInformationShopById(
             @PathVariable Long id
     ){

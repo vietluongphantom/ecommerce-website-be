@@ -1,30 +1,66 @@
 package com.ptit.e_commerce_website_be.do_an_nhom.controllers;
-
-import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.RefreshTokenDTO;
-import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.Token;
-import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.LoginUserDto;
-import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.RegisterUserDto;
+import com.ptit.e_commerce_website_be.do_an_nhom.exceptions.DataNotFoundException;
+import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.UserProfileDTO;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.User;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.response.CommonResult;
-import com.ptit.e_commerce_website_be.do_an_nhom.models.response.LoginResponse;
+import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.RefreshTokenDTO;
+import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.Token;
+import com.ptit.e_commerce_website_be.do_an_nhom.services.OtpService;
+import com.ptit.e_commerce_website_be.do_an_nhom.services.RedisOtpService;
 import com.ptit.e_commerce_website_be.do_an_nhom.services.token.TokenService;
 import com.ptit.e_commerce_website_be.do_an_nhom.services.user.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import com.ptit.e_commerce_website_be.do_an_nhom.exceptions.UserAlreadyExistedException;
+import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.LoginUserDto;
+import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.RegisterUserDto;
+import com.ptit.e_commerce_website_be.do_an_nhom.models.response.LoginResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/v1/user")
 @RequiredArgsConstructor
 public class UserController {
 
-    private final TokenService tokenService;
+    private static final Logger log = LoggerFactory.getLogger(UserController.class);
     private final UserService userService;
+    private final TokenService tokenService;
+    private final RedisOtpService redisOtpService;
+    private final OtpService otpService;
 
-    @PostMapping("/signUpNewVersion")
+    @PostMapping("/signup")
     public CommonResult<User> signup(@Valid @RequestBody RegisterUserDto registerUserDto){
         User user = userService.signUp(registerUserDto);
-        System.out.println("OK");
         return CommonResult.success(user);
+    }
+
+    // New version start from here
+    @PostMapping("/signUpNewVersion")
+    public CommonResult<User> verifyOtpForSigningUp(@Valid @RequestBody RegisterUserDto registerUserDto) {
+        return CommonResult.success(userService.signUpNewVersion(registerUserDto));
+    }
+    // New version here
+    @PostMapping("/verifyOtp")
+    public CommonResult<String> verifyOtp(@RequestBody Map<String, String> requestBody) {
+        String email = requestBody.get("email");
+        Integer otp = Integer.parseInt(requestBody.get("otp"));
+        boolean isOtpValid = redisOtpService.verifyOtp(email, otp);
+        if (!isOtpValid) { return CommonResult.failed("Invalid OTP"); }
+        userService.activateUser(email);
+        return CommonResult.success("User activated successfully");
+    }
+    // New version here
+    @PostMapping("/resendOtp")
+    public CommonResult<String> resendOtp(@RequestBody Map<String, String> requestBody) {
+        String email = requestBody.get("email");
+        return otpService.resendOtpForSigningUp(email);
     }
 
     @PostMapping("/login")
@@ -39,6 +75,47 @@ public class UserController {
                 .refreshToken(jwtToken.getRefreshToken())
                 .build();
         return CommonResult.success(loginResponse);
+    }
+
+    @GetMapping("/me")
+    @PreAuthorize("hasRole('USER')")
+    public CommonResult<User> authenticatedUser() {
+        return CommonResult.success(userService.getAuthenticatedUser());
+    }
+
+    @GetMapping("/profile")
+    @PreAuthorize("hasRole('USER')")
+    public CommonResult<UserProfileDTO> showUserProfile() {
+        return CommonResult.success(userService.getUserProfile());
+    }
+
+    @PostMapping("/updateProfile")
+    @PreAuthorize("hasRole('USER')")
+    public CommonResult<User> updateUserProfile(@Valid @RequestBody UserProfileDTO userProfileDTO) {
+        return CommonResult.success(userService.updateUserProfile(userProfileDTO));
+    }
+
+    @GetMapping("/registerAsSellerInHomePage")
+    @PreAuthorize("hasRole('USER')")
+    public CommonResult<User> registerAsSellerInHomePage() {
+        User user = userService.getAuthenticatedUser();
+        return CommonResult.success(userService.sendMail(user.getEmail()));
+    }
+
+    @PostMapping("/verifyOtpForAddingSellerRole")
+    public CommonResult<String> verifyOtpForAddingSellerRole(@RequestBody Map<String, String> requestBody) {
+        String email = requestBody.get("email");
+        Integer otp = Integer.parseInt(requestBody.get("otp"));
+        boolean isOtpValid = redisOtpService.verifyOtp(email, otp);
+        if (!isOtpValid) { return CommonResult.failed("Invalid OTP"); }
+        userService.addSellerRole(email);
+        return CommonResult.success("User activated successfully");
+    }
+
+    @PostMapping("/resendOtpForAddingSellerRole")
+    public CommonResult<String> resendOtpForAddingSellerRole(@RequestBody Map<String, String> requestBody) {
+        String email = requestBody.get("email");
+        return otpService.resendOtpForSigningUp(email);
     }
 
     @PostMapping("/refreshToken")
@@ -56,5 +133,4 @@ public class UserController {
                 .build();
         return CommonResult.success(loginResponse);
     }
-
 }

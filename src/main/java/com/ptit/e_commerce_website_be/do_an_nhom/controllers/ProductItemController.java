@@ -35,7 +35,7 @@ public class ProductItemController {
     }
 
     @GetMapping("/list-sku/{id}")
-    @PreAuthorize("hasRole('ROLE_SELLER')")
+//    @PreAuthorize("hasRole('ROLE_SELLER')")
     public  CommonResult<Page<Object>> getAllProductItem(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int limit,

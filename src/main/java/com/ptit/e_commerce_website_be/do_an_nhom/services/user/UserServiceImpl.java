@@ -2,24 +2,19 @@ package com.ptit.e_commerce_website_be.do_an_nhom.services.user;
 
 import com.ptit.e_commerce_website_be.do_an_nhom.exceptions.DataNotFoundException;
 import com.ptit.e_commerce_website_be.do_an_nhom.exceptions.SellerAlreadyExistedException;
-import com.ptit.e_commerce_website_be.do_an_nhom.exceptions.UserAlreadyExistedException;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.*;
-import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.Address;
-import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.Role;
-import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.Token;
-import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.User;
+import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.*;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.enums.RoleEnum;
-import com.ptit.e_commerce_website_be.do_an_nhom.models.response.LoginResponse;
-import com.ptit.e_commerce_website_be.do_an_nhom.repositories.AddressRepository;
-import com.ptit.e_commerce_website_be.do_an_nhom.repositories.RoleRepository;
-import com.ptit.e_commerce_website_be.do_an_nhom.repositories.TokenRepository;
-import com.ptit.e_commerce_website_be.do_an_nhom.repositories.UserRepository;
+import com.ptit.e_commerce_website_be.do_an_nhom.repositories.*;
 import com.ptit.e_commerce_website_be.do_an_nhom.services.EmailService;
 import com.ptit.e_commerce_website_be.do_an_nhom.services.JwtService;
 import com.ptit.e_commerce_website_be.do_an_nhom.services.RedisOtpService;
 import com.ptit.e_commerce_website_be.do_an_nhom.services.auth.AuthenticationService;
 import lombok.RequiredArgsConstructor;
+import com.ptit.e_commerce_website_be.do_an_nhom.exceptions.UserAlreadyExistedException;
+import com.ptit.e_commerce_website_be.do_an_nhom.models.response.LoginResponse;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.file.AccessDeniedException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -400,8 +396,8 @@ public class UserServiceImpl implements UserService{
         MailBody mailBody = MailBody.builder()
                 .to(email)
                 .text("This is the OTP for your forgot password request: " + otp
-                        + ". Please make sure to use this OTP to reset your password."
-                        + "The OTP will be expired in 5 minutes. You can resend the OTP after 1 minute.")
+                + ". Please make sure to use this OTP to reset your password."
+                + "The OTP will be expired in 5 minutes. You can resend the OTP after 1 minute.")
                 .build();
         emailService.sendSimpleMessage(mailBody);
         if (otp == null) {
