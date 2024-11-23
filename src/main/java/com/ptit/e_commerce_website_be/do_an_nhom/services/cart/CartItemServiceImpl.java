@@ -84,7 +84,8 @@ public class CartItemServiceImpl implements ICartItemService {
         }
 
         // Giảm số lượng sản phẩm có sẵn trong productItem
-        productItem.setQuantity(productItem.getQuantity() - cartItemDTO.getQuantity());
+//        productItem.setQuantity(productItem.getQuantity() - cartItemDTO.getQuantity());
+
         productItemRepository.save(productItem);
     }
 
