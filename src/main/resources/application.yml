@@ -5,9 +5,9 @@ spring:
   application:
     name: ecommerce
   datasource:
-    url: jdbc:mysql://mysql8-container:3306/ecommercedb?serverTimezone=UTC&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://mysql8-container:3306/doan?serverTimezone=UTC&allowPublicKeyRetrieval=true
     username: root
-    password: kien0702
+    password: 1235
   data:
     redis:
       host: redis-container
