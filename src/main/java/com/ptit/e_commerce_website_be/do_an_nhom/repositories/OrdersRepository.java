@@ -24,4 +24,6 @@ public interface OrdersRepository extends JpaRepository<Orders, Long> {
     List<Orders> findAll(Long shopId);
 //    @Query("SELECT COUNT(*) FROM Orders o WHERE o.shopId = ?1")
 //    Long getQuantityByShopId(Long shopId);
+
+    List<Orders> findByIdIn(List<Long> ids);
 }
