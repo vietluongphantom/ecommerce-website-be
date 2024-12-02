@@ -56,14 +56,32 @@ public class DetailInventoryDTO {
     @JsonProperty("product_id")
     private Long productId;
 
-    public DetailInventoryDTO(Integer quantity, String skuCode, String name, String warehouse) {
+    @JsonProperty("price")
+    private BigDecimal price;
+    public DetailInventoryDTO( Integer quantity, String skuCode, String name, String warehouse) {
         this.quantity = quantity;
         this.skuCode = skuCode;
         this.name = name;
         this.warehouse = warehouse;
     }
+    //inventory
+    public DetailInventoryDTO(Long id, Integer quantity, String skuCode, String name, String warehouse,
+                              BigDecimal importPrice, LocalDateTime createAt, Long productId , BigDecimal price) {
+        this.id = id;
+        this.quantity = quantity;
+        this.skuCode = skuCode;
+        this.name = name;
+        this.warehouse = warehouse;
+        this.importPrice = importPrice;
+        this.createAt = createAt;
+        this.productId = productId;
+        this.price = price;
+    }
 
-    public DetailInventoryDTO(Long id, Integer quantity, String skuCode, String name, String supplier, BigDecimal importPrice, String warehouse, String location, LocalDateTime createAt, Boolean isDelete) {
+    // supply
+    public DetailInventoryDTO(Long id, Integer quantity, String skuCode, String name, String supplier, BigDecimal importPrice,
+                              String warehouse, String location, LocalDateTime createAt, Boolean isDelete,
+                              BigDecimal price) {
         this.id = id;
         this.quantity = quantity;
         this.skuCode = skuCode;
@@ -74,6 +92,8 @@ public class DetailInventoryDTO {
         this.location = location;
         this.createAt = createAt;
         this.isDelete = isDelete;
+        this.price = price;
+//        this.productId = productId;
     }
 
 }

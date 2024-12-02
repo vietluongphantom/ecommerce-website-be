@@ -18,6 +18,14 @@ public interface SupplyRepository extends JpaRepository<Supply, Long> {
             , @Param("location") String location, @Param("sku_code") String skuCode, @Param("name") String name
             , @Param("created_at")String createdAt, @Param("shop_id") Long shopId, @Param("limit") Integer limit, @Param("offSet") Long offSet);
 
+    @Query(name = "Supply.getAllImportData", nativeQuery = true)
+    List<DetailInventoryDTO> getAllImportData(@Param("shop_id") Long shopId);
+
+
+    @Query(name = "Supply.getAllListImport", nativeQuery = true)
+    List<DetailInventoryDTO> getAllListImport(@Param("shop_id") Long shopId);
+
+
 
     @Query(nativeQuery = true, value =
             "SELECT COUNT(DISTINCT s.id) " +
