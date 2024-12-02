@@ -67,6 +67,14 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             Pageable pageable);
 
 
+    @Query("SELECT p FROM Product p " +
+            "LEFT JOIN p.categoryList c " +
+            "WHERE p.isDelete = False " +
+            "AND p.shopId = :shopId " +
+            "GROUP BY p.id ")
+    List<Product> getProductDataForExcel(Long shopId);
+
+
     @Modifying
     @Query("UPDATE Product p SET p.isDelete = true WHERE p.id = :id")
     void softDeleteProductByCategoryId(Long id);

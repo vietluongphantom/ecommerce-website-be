@@ -7,6 +7,8 @@ import com.ptit.e_commerce_website_be.do_an_nhom.models.response.ProductResponse
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 public interface IProductService {
@@ -37,5 +39,7 @@ public interface IProductService {
     Product updateProductById(Long id,ProductDTO productDTO, Long userId);
 
     Product insertAProduct(ProductDTO productDTO);
+
+    ByteArrayInputStream getProductDataDownloaded(Long userId) throws IOException;
 }
 

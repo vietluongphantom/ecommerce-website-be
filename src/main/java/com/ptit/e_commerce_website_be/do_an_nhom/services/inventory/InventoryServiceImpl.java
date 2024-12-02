@@ -13,13 +13,21 @@ import com.ptit.e_commerce_website_be.do_an_nhom.repositories.ProductItemReposit
 import com.ptit.e_commerce_website_be.do_an_nhom.repositories.SellerRepository;
 import com.ptit.e_commerce_website_be.do_an_nhom.repositories.SupplyRepository;
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+
+import static com.ptit.e_commerce_website_be.do_an_nhom.configs.Constant.*;
 
 @Service
 @RequiredArgsConstructor
@@ -100,6 +108,117 @@ public class InventoryServiceImpl implements InventoryService{
         List<DetailInventoryDTO> detailInventoryDTOList = supplyRepository.getAllExport(warehouse,supplier,location,skuCode, name , createdAt,shopId, pageable.getPageSize(), pageable.getOffset());
         int totalItems = supplyRepository.countAllExport(warehouse,supplier,location,skuCode, name , createdAt,shopId);
         return new PageImpl<>(detailInventoryDTOList, pageable, totalItems);
+    }
+
+
+    @Override
+    public ByteArrayInputStream getDataDownloaded(Long userId) throws IOException {
+        Long shopId = sellerRepository.findShopIdByUserId(userId);
+        List<DetailInventoryDTO> detailInventoryDTOList = inventoryRepository.getAllListInventoryData(shopId);
+        ByteArrayInputStream data = dataInventoryToExcel(detailInventoryDTOList);
+        return data;
+    }
+
+    @Override
+    public ByteArrayInputStream getImportDataDownloaded(Long userId) throws IOException {
+        Long shopId = sellerRepository.findShopIdByUserId(userId);
+        List<DetailInventoryDTO> detailInventoryDTOList = supplyRepository.getAllImportData(shopId);
+        ByteArrayInputStream data = dataImportToExcel(detailInventoryDTOList);
+        return data;
+    }
+
+    @Override
+    public List<DetailInventoryDTO> getAllListImport(Long userId) {
+        Long shopId = sellerRepository.findShopIdByUserId(userId);
+        List<DetailInventoryDTO> detailInventoryDTOList = supplyRepository.getAllListImport(shopId);
+        return detailInventoryDTOList;
+    }
+
+
+    public static ByteArrayInputStream dataInventoryToExcel(List<DetailInventoryDTO> allListImportInventory) throws IOException {
+        Workbook workbook  = new XSSFWorkbook();
+
+        ByteArrayOutputStream byteArrayOutputStream  = new ByteArrayOutputStream();
+        try {
+            Sheet sheet = workbook.createSheet(SHEET_NAME);
+            Row row = sheet.createRow(0);
+
+            for (int i  =0; i< HEADER_ALL_LIST_INVENTORY.length;i++){
+
+                Cell cell = row.createCell(i);
+                cell.setCellValue(HEADER_ALL_LIST_INVENTORY[i]);
+            }
+
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+            int rowIndex = 1;
+            for (DetailInventoryDTO p :allListImportInventory){
+                Row row1 = sheet.createRow(rowIndex);
+                rowIndex++;
+                row1.createCell(0).setCellValue(p.getId());
+//                row1.createCell(1).setCellValue(p.getProductId());
+                row1.createCell(1).setCellValue(p.getName());
+                row1.createCell(2).setCellValue(p.getSkuCode());
+                row1.createCell(3).setCellValue(p.getPrice().doubleValue());
+                row1.createCell(4).setCellValue(p.getImportPrice().doubleValue());
+                row1.createCell(5).setCellValue(p.getQuantity());
+                row1.createCell(6).setCellValue(p.getWarehouse());
+                row1.createCell(7).setCellValue(p.getCreateAt().format(formatter));
+            }
+
+            workbook.write(byteArrayOutputStream);
+            return  new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        finally {
+            workbook.close();
+            byteArrayOutputStream.close();
+        }
+    }
+
+    public static ByteArrayInputStream dataImportToExcel(List<DetailInventoryDTO> allListImportInventory) throws IOException {
+        Workbook workbook  = new XSSFWorkbook();
+
+        ByteArrayOutputStream byteArrayOutputStream  = new ByteArrayOutputStream();
+        try {
+            Sheet sheet = workbook.createSheet(SHEET_NAME);
+            Row row = sheet.createRow(0);
+
+            for (int i  =0; i< HEADER_ALL_LIST_IMPORT.length;i++){
+
+                Cell cell = row.createCell(i);
+                cell.setCellValue(HEADER_ALL_LIST_IMPORT[i]);
+            }
+
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+            int rowIndex = 1;
+            for (DetailInventoryDTO p :allListImportInventory){
+                Row row1 = sheet.createRow(rowIndex);
+                rowIndex++;
+                row1.createCell(0).setCellValue(p.getId());
+                row1.createCell(1).setCellValue(p.getProductId());
+                row1.createCell(2).setCellValue(p.getName());
+                row1.createCell(3).setCellValue(p.getSkuCode());
+                row1.createCell(4).setCellValue(p.getPrice().doubleValue());
+                row1.createCell(5).setCellValue(p.getImportPrice().doubleValue());
+                row1.createCell(6).setCellValue(p.getQuantity());
+                row1.createCell(7).setCellValue(p.getWarehouse());
+                row1.createCell(8).setCellValue(p.getSupplier());
+                row1.createCell(9).setCellValue(p.getLocation());
+                row1.createCell(10).setCellValue(p.getCreateAt().format(formatter));
+            }
+
+            workbook.write(byteArrayOutputStream);
+            return  new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        finally {
+            workbook.close();
+            byteArrayOutputStream.close();
+        }
     }
 }
 

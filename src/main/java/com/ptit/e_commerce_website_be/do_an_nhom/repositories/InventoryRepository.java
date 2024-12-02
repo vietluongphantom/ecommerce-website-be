@@ -21,6 +21,10 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
             , @Param("limit") Integer limit, @Param("offSet") Long offSet
     );
 
+    @Query(name = "Inventory.getAllListInventoryData", nativeQuery = true)
+    List<DetailInventoryDTO> getAllListInventoryData(@Param("shop_id")Long shopId);
+
+
     @Query(nativeQuery = true, value =
             "SELECT COUNT(DISTINCT i.id) " +
                     "FROM Inventory i " +
