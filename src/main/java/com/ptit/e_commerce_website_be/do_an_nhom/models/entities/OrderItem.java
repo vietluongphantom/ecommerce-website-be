@@ -45,6 +45,10 @@ public class OrderItem {
     @Column(name = "updated_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
     private LocalDateTime updatedAt;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private Orders order;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();

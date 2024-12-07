@@ -9,6 +9,7 @@ import lombok.Builder;
 
 import java.time.LocalDateTime;
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 @Table(name = "orders")
@@ -60,8 +61,10 @@ public class Orders {
 
     @Column(name = "shop_id")
     private Long shopId;
-
-
+//    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+//    private List<OrderItem> orderItems;
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<OrderItem> orderItems;
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();

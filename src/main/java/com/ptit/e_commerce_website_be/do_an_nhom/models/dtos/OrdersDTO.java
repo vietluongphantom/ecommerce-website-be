@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 @Data
@@ -60,6 +61,9 @@ public class OrdersDTO {
     @JsonProperty("modified_at")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime modifiedAt;
+
+    private List<OrderItemDTO> orderItems;
+
 
     public enum OrderStatus {
         PENDING,

@@ -1,13 +1,17 @@
 package com.ptit.e_commerce_website_be.do_an_nhom.controllers;
 
 import com.ptit.e_commerce_website_be.do_an_nhom.exceptions.DataNotFoundException;
+import com.ptit.e_commerce_website_be.do_an_nhom.mapper.OrderItemMapper;
 import com.ptit.e_commerce_website_be.do_an_nhom.mapper.OrderMapper;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.OrdersDTO;
+import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.OrderItemDTO;
+import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.OrderItem;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.OrderStatusHistory;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.Orders;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.User;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.response.CommonResult;
 import com.ptit.e_commerce_website_be.do_an_nhom.repositories.OrderStatusHistoryRepository;
+import com.ptit.e_commerce_website_be.do_an_nhom.repositories.OrderItemRepository;
 import com.ptit.e_commerce_website_be.do_an_nhom.services.orders.IOrdersService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,12 +40,31 @@ public class OrdersController {
 
     }
 
-    @GetMapping("/{id}")
-    public CommonResult<OrdersDTO> getOrderById(@PathVariable Long id) {
-        return iOrdersService.findById(id)
-                .map(order -> CommonResult.success(orderMapper.toDto(order), "Get order successfully"))
-                .orElse(CommonResult.error(404, "Order not found"));
-    }
+//    @GetMapping("/{id}")
+//    public CommonResult<OrdersDTO> getOrderById(@PathVariable Long id) {
+//        return iOrdersService.findById(id)
+//                .map(order -> CommonResult.success(orderMapper.toDto(order), "Get order successfully"))
+//                .orElse(CommonResult.error(404, "Order not found"));
+//    }
+@GetMapping("/{id}")
+public CommonResult<OrdersDTO> getOrderById(@PathVariable Long id) {
+    return iOrdersService.findById(id)
+            .map(order -> {
+                // Lấy danh sách OrderItem từ OrderItemRepository
+                List<OrderItem> orderItems = iOrdersService.getOrderItems(order.getId());
+
+                // Chuyển danh sách OrderItem sang OrderItemDTO
+                List<OrderItemDTO> orderItemDTOs = OrderItemMapper.toDtoList(orderItems);
+
+                // Chuyển đổi Orders sang OrdersDTO
+                OrdersDTO orderDto = orderMapper.toDto(order);
+                orderDto.setOrderItems(orderItemDTOs); // Gắn danh sách OrderItemDTO vào OrdersDTO
+
+                return CommonResult.success(orderDto, "Get order successfully");
+            })
+            .orElse(CommonResult.error(404, "Order not found"));
+}
+
 
     @GetMapping("/user")
     public CommonResult<List<OrdersDTO>> getUserOrders() {
@@ -51,6 +74,19 @@ public class OrdersController {
         return CommonResult.success(ordersDTOList, "Get user orders successfully");
     }
 
+//    @GetMapping("/user/order-items")
+//    public CommonResult<List<OrderItemDTO>> getUserOrderItems() {
+//        // Lấy thông tin người dùng từ SecurityContextHolder
+//        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//
+//        // Lấy danh sách các OrderItems từ OrdersService bằng userId
+//        List<OrderItemDTO> orderItems = iOrdersService.findOrderItemsByOrder(user.getId());
+//
+//        if (orderItems.isEmpty()) {
+//            return CommonResult.error(404, "No order items found for the user.");
+//        }
+//        return CommonResult.success(orderItems, "Get order items successfully.");
+//    }
 
     @PostMapping
     @PreAuthorize("hasRole('ROLE_USER')")
