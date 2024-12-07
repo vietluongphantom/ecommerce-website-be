@@ -1,6 +1,8 @@
 package com.ptit.e_commerce_website_be.do_an_nhom.repositories;
 
+import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.OrderItem;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.Orders;
+import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -27,3 +29,4 @@ public interface OrdersRepository extends JpaRepository<Orders, Long> {
 
     List<Orders> findByIdIn(List<Long> ids);
 }
+
