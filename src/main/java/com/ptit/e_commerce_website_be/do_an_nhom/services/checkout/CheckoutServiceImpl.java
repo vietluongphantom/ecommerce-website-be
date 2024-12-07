@@ -2,6 +2,7 @@ package com.ptit.e_commerce_website_be.do_an_nhom.services.checkout;
 
 
 import com.ptit.e_commerce_website_be.do_an_nhom.exceptions.DataNotFoundException;
+import com.ptit.e_commerce_website_be.do_an_nhom.exceptions.QuantityExceededException;
 import com.ptit.e_commerce_website_be.do_an_nhom.mapper.OrderMapper;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.OrdersDTO;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.*;
@@ -67,6 +68,7 @@ public class CheckoutServiceImpl implements ICheckoutService {
                 //
 
                 saveOrderItem(orders, cartItem, unit);
+                minusQuantityProductItem(cartItem.getProductItemId(), cartItem.getQuantity());
             }
             // Cập nhật tổng giá của đơn hàng
             BigDecimal orderTotalPrice = calculateOrderTotalPrice(orders.getId());
@@ -141,6 +143,7 @@ public class CheckoutServiceImpl implements ICheckoutService {
         orderStatusHistoryRepository.save(history);
     }
 
+    @Transactional
     private void saveOrderItem(Orders orders, CartItem cartItem, BigDecimal unitPrice) {
         OrderItem orderItem = OrderItem.builder()
                 .orderId(orders.getId())
@@ -153,6 +156,17 @@ public class CheckoutServiceImpl implements ICheckoutService {
                 .build();
         orderItemRepository.save(orderItem);
     }
+
+    @Transactional
+    private  void minusQuantityProductItem(Long productItemId, Integer quantityProductItem){
+        ProductItem productItem = productItemRepository.findById(productItemId).get();
+        if (productItem.getQuantity() < quantityProductItem){
+            throw new QuantityExceededException("Quantity of product item not enough");
+        }
+        productItem.setQuantity(productItem.getQuantity() - quantityProductItem);
+        productItemRepository.save(productItem);
+    }
+
 
     private void updateProductStock(ProductItem productItem, int quantity) {
         if (productItem.getQuantity() < quantity) throw new IllegalArgumentException("Số lượng sản phẩm không đủ");
