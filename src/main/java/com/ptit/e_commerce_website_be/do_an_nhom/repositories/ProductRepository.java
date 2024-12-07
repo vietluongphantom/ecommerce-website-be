@@ -86,6 +86,11 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("SELECT COUNT(*) FROM Product p WHERE p.shopId = ?1")
     Long getQuantityByShopId(Long shopId);
 
+
+//    @Query("SELECT  FROM Product p WHERE p.shopId = ?1")
+//    Product findProductByProductItemId(Long id);
+
+
     @Query("SELECT p FROM Product p WHERE p.id IN :productItemIds")
     List<Product> findAllByIds(@Param("productItemIds") List<Long> productItemIds);
 }

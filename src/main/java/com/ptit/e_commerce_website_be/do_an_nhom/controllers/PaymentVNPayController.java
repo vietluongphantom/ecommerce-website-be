@@ -5,14 +5,13 @@ import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.Orders;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.response.PaymentResponse;
 import com.ptit.e_commerce_website_be.do_an_nhom.services.checkout.ICheckoutService;
 import com.ptit.e_commerce_website_be.do_an_nhom.services.paymentVNPay.PaymentVNPayService;
+import com.ptit.e_commerce_website_be.do_an_nhom.services.product.IProductService;
+import com.ptit.e_commerce_website_be.do_an_nhom.services.productitem.ProductItemService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
@@ -24,6 +23,7 @@ public class PaymentVNPayController {
     private final
     PaymentVNPayService paymentService;
     private final ICheckoutService checkoutService;
+    private final ProductItemService productItemService;
 //        @GetMapping("/create-payment")
 //    public ResponseEntity<PaymentResponse> pay(
 //            HttpServletRequest request,
@@ -50,6 +50,7 @@ public class PaymentVNPayController {
                     .build());
         } else {
             checkoutService.setStatusOrder(Orders.OrderStatus.CANCELLED, listOrderId);
+            productItemService.rollbackQuantity(listOrderId);
             return ResponseEntity.badRequest().body(
                     PaymentResponse
                             .builder()

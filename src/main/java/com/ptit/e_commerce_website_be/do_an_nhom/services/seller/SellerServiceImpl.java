@@ -7,6 +7,8 @@ import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.*;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.enums.RoleEnum;
 import com.ptit.e_commerce_website_be.do_an_nhom.repositories.*;
 
+import com.ptit.e_commerce_website_be.do_an_nhom.services.EmailService;
+import com.ptit.e_commerce_website_be.do_an_nhom.services.RedisOtpService;
 import com.ptit.e_commerce_website_be.do_an_nhom.services.auth.AuthenticationServiceImpl;
 import lombok.RequiredArgsConstructor;
 import com.ptit.e_commerce_website_be.do_an_nhom.exceptions.SellerAlreadyExistedException;
@@ -29,7 +31,13 @@ public class SellerServiceImpl implements SellerService{
     private final SellerRepository sellerRepository;
     private final AddressRepository addressRepository;
     private final ShopRepository shopRepository;
-
+    private final RedisOtpService redisOtpService;
+    private final EmailService emailService;
+    private final ProductRepository productRepository;
+    private final ProductItemRepository productItemRepository;
+    private final OrdersRepository ordersRepository;
+    private final WarehouseRepository warehouseRepository;
+    private final VoucherRepository voucherRepository;
 
     @Override
     @Transactional
@@ -119,7 +127,7 @@ public class SellerServiceImpl implements SellerService{
         address.setDistrict(detailSellerInfoDTO.getDistrict());
         sellerRepository.save(seller);
         userRepository.save(user);
-            addressRepository.save(address);
+        addressRepository.save(address);
 
         return detailSellerInfoDTO;
     }
@@ -206,7 +214,15 @@ public class SellerServiceImpl implements SellerService{
                 seller.setShopId(shop.getId());
                 sellerRepository.save(seller);
 
-
+                Integer otp = redisOtpService.generateAndSaveOtp(sellerRegisterDto.getEmail());
+                String roleNames = String.valueOf(existingRoles.stream()
+                        .map(role -> role.getName().name())
+                        .collect(Collectors.toList()));
+                MailBody mailBody = MailBody.builder()
+                        .to(sellerRegisterDto.getEmail())
+                        .text("You are already an " + roleNames + " in our system. This is the OTP for your request: " + otp)
+                        .build();
+                emailService.sendSimpleMessage(mailBody);
 
                 return existingUser;
             }
@@ -236,7 +252,12 @@ public class SellerServiceImpl implements SellerService{
                     .build();
             sellerRepository.save(seller);
 
-
+            Integer otp = redisOtpService.generateAndSaveOtp(sellerRegisterDto.getEmail());
+            MailBody mailBody = MailBody.builder()
+                    .to(sellerRegisterDto.getEmail())
+                    .text("This is the OTP for your request: " + otp)
+                    .build();
+            emailService.sendSimpleMessage(mailBody);
 
             return user;
         }
@@ -292,7 +313,15 @@ public class SellerServiceImpl implements SellerService{
                     .build();
             sellerRepository.save(seller);
 
-
+            Integer otp = redisOtpService.generateAndSaveOtp(registerUserDto.getEmail());
+            MailBody mailBody = MailBody.builder()
+                    .to(registerUserDto.getEmail())
+                    .text(
+                            "This is the OTP for your seller registration request: "
+                                    + otp
+                                    + "\nPlease verify your email to activate your account, you will be added the seller role."
+                    ).build();
+            emailService.sendSimpleMessage(mailBody);
 
             return existingUser;
         } else {
@@ -334,6 +363,18 @@ public class SellerServiceImpl implements SellerService{
                     .build();
             sellerRepository.save(seller);
 
+            Integer otp = redisOtpService.generateAndSaveOtp(registerUserDto.getEmail());
+            MailBody mailBody = MailBody.builder()
+                    .to(registerUserDto.getEmail())
+                    .text(
+                            "This is the OTP for your seller registering request: "
+                                    + otp
+                                    + "\nPlease verify your email to activate your account. You will become seller after verifying your email."
+                                    + "\nYou will also use this as user account then."
+                                    + "\nIf you didn't request this, please ignore this email."
+                    )
+                    .build();
+            emailService.sendSimpleMessage(mailBody);
 
             return user;
         }
@@ -352,7 +393,14 @@ public class SellerServiceImpl implements SellerService{
         Map<String, Long> result = new HashMap<>();
         Shop shop = shopRepository.findShopByUserId(userId)
                 .orElseThrow(()-> new DataNotFoundException("shop not found by user id"));
-
+        Long quantityProduct = productRepository.getQuantityByShopId(shop.getId());
+        result.put("product_quantity", quantityProduct);
+        Long quantityWarehouse  =  warehouseRepository.getQuantityByShopId(shop.getId());
+        result.put("warehouse_quantity", quantityWarehouse);
+        Long quantityVoucher = voucherRepository.getQuantityByShopId(shop.getId());
+        result.put("voucher_quantity", quantityVoucher);
+        Long quantityOrder = ordersRepository.getQuantityByShopId(shop.getId());
+        result.put("order_quantity", quantityOrder);
         return result;
     }
 }
