@@ -41,5 +41,6 @@ public interface IProductService {
     Product insertAProduct(ProductDTO productDTO);
 
     ByteArrayInputStream getProductDataDownloaded(Long userId) throws IOException;
+    Product findProductById(Long productId);
 }
 

@@ -17,8 +17,8 @@ import java.util.List;
 @Repository
 public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
 
+//    static List<OrderItem> findByOrderId(Long orderId);
     List<OrderItem> findByOrderId(Long orderId);
-
     Optional<List<OrderItem>> findAllByProductItemId(Long id);
 
     List<OrderItem> findAllByOrderId(Long id);
@@ -28,4 +28,6 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
             "JOIN Orders o ON oi.orderId = o.id " +
             "WHERE o.userId = :userId AND pi.productId = :productId")
     boolean hasUserPurchasedProduct(@Param("userId") Long userId, @Param("productId") Long productId);
+
+
 }

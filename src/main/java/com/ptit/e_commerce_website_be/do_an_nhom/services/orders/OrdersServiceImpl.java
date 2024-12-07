@@ -1,19 +1,25 @@
 package com.ptit.e_commerce_website_be.do_an_nhom.services.orders;
 
 import com.ptit.e_commerce_website_be.do_an_nhom.exceptions.DataNotFoundException;
+import com.ptit.e_commerce_website_be.do_an_nhom.mapper.OrderItemMapper;
 import com.ptit.e_commerce_website_be.do_an_nhom.mapper.OrderMapper;
+import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.OrderItemDTO;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.OrdersDTO;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.OrderItem;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.OrderStatusHistory;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.Orders;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.*;
 import com.ptit.e_commerce_website_be.do_an_nhom.repositories.*;
+import com.ptit.e_commerce_website_be.do_an_nhom.services.product.IProductService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -113,5 +119,16 @@ public class OrdersServiceImpl implements IOrdersService {
     public boolean checkUserPurchasedProduct(Long userId, Long productId) {
         return orderItemRepository.hasUserPurchasedProduct(userId, productId);
     }
+//    @Override
+//    public List<OrderItemDTO> findOrderItemsByUserId(Long userId) {
+//        // Lấy danh sách các OrderItem dựa trên userId
+//        List<OrderItem> orderItems = orderItemRepository.findByOrderId(userId); // Giả định rằng bạn đã định nghĩa phương thức này trong OrderItemRepository
+//
+//        // Chuyển đổi danh sách OrderItem sang danh sách OrderItemDTO
+//        return orderItems.stream()
+//                .map(orderMapper::toOrderItemDTO) // Sử dụng orderMapper để chuyển đổi
+//                .collect(Collectors.toList());
+//    }
+
 
 }
