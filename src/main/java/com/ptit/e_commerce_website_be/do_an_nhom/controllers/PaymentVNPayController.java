@@ -6,6 +6,7 @@ import com.ptit.e_commerce_website_be.do_an_nhom.models.response.PaymentResponse
 import com.ptit.e_commerce_website_be.do_an_nhom.services.checkout.ICheckoutService;
 import com.ptit.e_commerce_website_be.do_an_nhom.services.paymentVNPay.PaymentVNPayService;
 import com.ptit.e_commerce_website_be.do_an_nhom.services.product.IProductService;
+import com.ptit.e_commerce_website_be.do_an_nhom.services.productitem.ProductItemService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,7 @@ public class PaymentVNPayController {
     private final
     PaymentVNPayService paymentService;
     private final ICheckoutService checkoutService;
-    private final IProductService productService;
+    private final ProductItemService productItemService;
 //        @GetMapping("/create-payment")
 //    public ResponseEntity<PaymentResponse> pay(
 //            HttpServletRequest request,
@@ -42,7 +43,6 @@ public class PaymentVNPayController {
         response.sendRedirect("http://localhost:5173/user/list-order?vnp_ResponseCode=" + status);
         if (status.equals("00")) {
             checkoutService.setStatusOrder(Orders.OrderStatus.CONFIRMED, listOrderId);
-//            productService.rollbackQuantity(listOrderId);
             return ResponseEntity.ok(PaymentResponse
                     .builder()
                     .status("00")
@@ -50,6 +50,7 @@ public class PaymentVNPayController {
                     .build());
         } else {
             checkoutService.setStatusOrder(Orders.OrderStatus.CANCELLED, listOrderId);
+            productItemService.rollbackQuantity(listOrderId);
             return ResponseEntity.badRequest().body(
                     PaymentResponse
                             .builder()

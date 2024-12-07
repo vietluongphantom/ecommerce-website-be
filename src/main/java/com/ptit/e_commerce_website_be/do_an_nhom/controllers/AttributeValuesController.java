@@ -47,7 +47,6 @@ public class AttributeValuesController {
             @PathVariable Long id
     ){
         User user  = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        attributeValueService.deleteAttributeValues(id, user.getId());
         return CommonResult.success(attributeValueService.getALLAttributeValues(id, user.getId()),"Delete attribute values successfully");
     }
 

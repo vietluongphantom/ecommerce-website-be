@@ -15,10 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,6 +39,8 @@ public class ProductItemServiceImpl implements ProductItemService
     private final ProductAttributesRepository productAttributesRepository;
 
     private final ShopRepository shopRepository;
+
+    private final OrderItemRepository orderItemRepository;
 
     @Transactional
     public void deleteProductItemById(Long id) {
@@ -267,6 +266,19 @@ public class ProductItemServiceImpl implements ProductItemService
         }
         List<ProductItem> productItems = productItemRepository.getListProductItemByProductId(productId, shop.getId());
         return productItems;
+    }
+
+    @Override
+    @Transactional
+    public void rollbackQuantity(List<Long> listOrderId) {
+        for(int i = 0; i < listOrderId.size(); i ++){
+            List<OrderItem> orderItems = orderItemRepository.findByOrderId(listOrderId.get(i));
+            for(int j = 0 ; j < orderItems.size(); j ++){
+                ProductItem productItem =  productItemRepository.findById(orderItems.get(j).getProductItemId()).get();
+                productItem.setQuantity(productItem.getQuantity()+ orderItems.get(j).getQuantity());
+                productItemRepository.save(productItem);
+            }
+        }
     }
 }
 
