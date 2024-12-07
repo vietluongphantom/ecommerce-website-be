@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,6 +35,7 @@ public class CheckoutServiceImpl implements ICheckoutService {
     private final AddressService addressService;
     private final AddressRepository addressRepository;
     private final UserRepository userRepository;
+    private final ProductRepository productRepository;
 
     @Transactional
     @Override
@@ -59,6 +61,11 @@ public class CheckoutServiceImpl implements ICheckoutService {
                 BigDecimal totalPrice = cartItem.getTotalPrice();
                 int quantity = cartItem.getQuantity();
                 BigDecimal unit = totalPrice.divide(BigDecimal.valueOf(quantity), BigDecimal.ROUND_HALF_UP);
+                //Product
+//                Optional<ProductItem> productItem = productItemRepository.findById(cartItem.getProductItemId());
+//                Optional<Product> product =  productRepository.findById(productItem.get().getProductId());
+                //
+
                 saveOrderItem(orders, cartItem, unit);
             }
             // Cập nhật tổng giá của đơn hàng
