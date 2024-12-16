@@ -32,6 +32,6 @@ public interface IOrdersService {
 
     boolean checkUserPurchasedProduct(Long userId, Long productId);
 //    List<OrderItemDTO> findOrderItemsByUserId(Long userId);
-
+    List<Orders> findAllForAdmin();
 
 }

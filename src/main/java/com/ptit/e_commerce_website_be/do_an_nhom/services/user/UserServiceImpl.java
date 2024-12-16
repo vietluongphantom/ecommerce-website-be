@@ -98,6 +98,17 @@ public class UserServiceImpl implements UserService{
         }
     }
 
+    @Override
+//    @Cacheable(value = "sellers")
+    public List<User> findAllUsers() {
+        Optional<Role> roleOptional = roleRepository.findByName(RoleEnum.USER);
+        if (roleOptional.isPresent()) {
+            return userRepository.findByRolesContaining(roleOptional.get().getName());
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
     private Page<User> convertListToPage(List<User> sellers, Pageable pageable) {
         int pageSize = pageable.getPageSize();
         int currentPage = pageable.getPageNumber();
@@ -439,4 +450,19 @@ public class UserServiceImpl implements UserService{
             }
         }
     }
+
+    @Override
+    public void updateUserStatus(Long userId, Boolean status) {
+        // Tìm user theo ID
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new DataNotFoundException("User not found with ID: " + userId));
+
+        // Cập nhật trạng thái
+        user.setStatus(status);
+
+        // Lưu thay đổi
+        userRepository.save(user);
+    }
+
+
 }

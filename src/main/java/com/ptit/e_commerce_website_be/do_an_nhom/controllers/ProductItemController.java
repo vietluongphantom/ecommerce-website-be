@@ -67,7 +67,7 @@ public class ProductItemController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_SELLER')")
+//    @PreAuthorize("hasRole('ROLE_SELLER')")
     public  CommonResult<DetailProductItemDTO> getProductItemById(
             @PathVariable Long id
     ){

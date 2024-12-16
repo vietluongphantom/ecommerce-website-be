@@ -9,6 +9,8 @@ import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.ProductDTO;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.*;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.response.CommonResult;
 import com.ptit.e_commerce_website_be.do_an_nhom.repositories.OrderStatusHistoryRepository;
+import com.ptit.e_commerce_website_be.do_an_nhom.repositories.ProductItemRepository;
+import com.ptit.e_commerce_website_be.do_an_nhom.repositories.ProductRepository;
 import com.ptit.e_commerce_website_be.do_an_nhom.repositories.OrderItemRepository;
 import com.ptit.e_commerce_website_be.do_an_nhom.services.orders.IOrdersService;
 import com.ptit.e_commerce_website_be.do_an_nhom.services.productitem.ProductItemService;
@@ -47,6 +49,8 @@ public class OrdersController {
 //                .map(order -> CommonResult.success(orderMapper.toDto(order), "Get order successfully"))
 //                .orElse(CommonResult.error(404, "Order not found"));
 //    }
+
+//
 @GetMapping("/{id}")
 public CommonResult<OrdersDTO> getOrderById(@PathVariable Long id) {
     return iOrdersService.findById(id)
@@ -65,45 +69,7 @@ public CommonResult<OrdersDTO> getOrderById(@PathVariable Long id) {
             })
             .orElse(CommonResult.error(404, "Order not found"));
 }
-//@GetMapping("/{id}")
-//public CommonResult<OrdersDTO> getOrderById(@PathVariable Long id) {
-//    User user  = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-//    return iOrdersService.findById(id)
-//            .map(order -> {
-//                // Lấy danh sách OrderItem từ OrderItemRepository
-//                List<OrderItem> orderItems = iOrdersService.getOrderItems(order.getId());
-//
-//                // Tạo danh sách OrderItemDTO từ OrderItem
-//                List<OrderItemDTO> orderItemDTOs = new ArrayList<>();
-//
-//                for (OrderItem orderItem : orderItems) {
-//                    OrderItemDTO orderItemDTO = new OrderItemDTO();
-//                    orderItemDTO.setId(orderItem.getId());
-//                    orderItemDTO.setOrderId(orderItem.getOrderId());
-//                    orderItemDTO.setProductItemId(orderItem.getProductItemId());
-//                    orderItemDTO.setQuantity(orderItem.getQuantity());
-//                    orderItemDTO.setShopId(orderItem.getShopId());
-//                    orderItemDTO.setUnitPrice(orderItem.getUnitPrice());
-//                    orderItemDTO.setVoucherId(orderItem.getVoucherId());
-//
-//                    // Lấy thông tin ProductItem
-//                    ProductItem productItem = ProductItemService.getProductItemById(id,user.getId());
-//                    if (productItem != null) {
-//                        orderItemDTO.setProductName(productItem.getName()); // Lấy tên sản phẩm
-//                        orderItemDTO.setProductImages(productItem.getImages()); // Lấy hình ảnh sản phẩm
-//                    }
-//
-//                    orderItemDTOs.add(orderItemDTO);
-//                }
-//
-//                // Chuyển đổi Orders sang OrdersDTO
-//                OrdersDTO orderDto = orderMapper.toDto(order);
-//                orderDto.setOrderItems(orderItemDTOs); // Gắn danh sách OrderItemDTO vào OrdersDTO
-//
-//                return CommonResult.success(orderDto, "Get order successfully");
-//            })
-//            .orElse(CommonResult.error(404, "Order not found"));
-//}
+
 
 
     @GetMapping("/user")
@@ -217,5 +183,17 @@ public CommonResult<OrdersDTO> getOrderById(@PathVariable Long id) {
         } else {
             return ResponseEntity.ok(CommonResult.failed("User has not purchased the product"));
         }
+    }
+
+    @GetMapping("/admin")
+//    @PreAuthorize("hasRole('ADMIN')")
+    public CommonResult<List<OrdersDTO>> getAllOrdersForAdmin() {
+        // Lấy tất cả Orders
+        List<Orders> orders = iOrdersService.findAllForAdmin();
+
+        // Chuyển đổi sang DTO
+        List<OrdersDTO> ordersDTOs = orders.stream().map(orderMapper::toDto).collect(Collectors.toList());
+
+        return CommonResult.success(ordersDTOs, "Get all orders for admin successfully");
     }
 }

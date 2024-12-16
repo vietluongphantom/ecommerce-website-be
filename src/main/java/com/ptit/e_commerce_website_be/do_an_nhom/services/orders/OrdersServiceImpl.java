@@ -129,6 +129,9 @@ public class OrdersServiceImpl implements IOrdersService {
 //                .map(orderMapper::toOrderItemDTO) // Sử dụng orderMapper để chuyển đổi
 //                .collect(Collectors.toList());
 //    }
-
+    @Override
+    public List<Orders> findAllForAdmin() {
+        return ordersRepository.findAllByAdmin();
+    }
 
 }
