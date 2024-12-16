@@ -34,4 +34,7 @@ public interface UserRepository extends CrudRepository<User, Long> {
     void updatePassword(String email, String password);
 
     Page<User> findByRolesContaining(Role role, Pageable pageable);
+
+    @Query("SELECT u FROM User u JOIN u.roles r WHERE r.name = :roleName")
+    List<User> findAllByRoleName(@Param("roleName") String roleName);
 }

@@ -21,4 +21,5 @@ public interface ImagesRepository extends JpaRepository<Image, Long> {
     @Modifying
     @Query(name ="DELETE FROM images i WHERE i.link = ?1", nativeQuery = true)
     void deleteByLink(String img);
+
 }

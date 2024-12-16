@@ -25,7 +25,8 @@ public class OrderItemDTO {
     private BigDecimal unitPrice;
 
     private Long voucherId;
-
+     private String productName; // Tên sản phẩm
+    private String productImage;
 
 
 }

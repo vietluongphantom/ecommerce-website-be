@@ -1,6 +1,7 @@
 package com.ptit.e_commerce_website_be.do_an_nhom.services.orders;
 
 import com.ptit.e_commerce_website_be.do_an_nhom.exceptions.DataNotFoundException;
+import com.ptit.e_commerce_website_be.do_an_nhom.mapper.OrderItemMapper;
 import com.ptit.e_commerce_website_be.do_an_nhom.mapper.OrderMapper;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.OrderItemDTO;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.OrdersDTO;
@@ -9,11 +10,14 @@ import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.OrderStatusHist
 import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.Orders;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.*;
 import com.ptit.e_commerce_website_be.do_an_nhom.repositories.*;
+import com.ptit.e_commerce_website_be.do_an_nhom.services.product.IProductService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -125,4 +129,9 @@ public class OrdersServiceImpl implements IOrdersService {
 //                .map(orderMapper::toOrderItemDTO) // Sử dụng orderMapper để chuyển đổi
 //                .collect(Collectors.toList());
 //    }
+    @Override
+    public List<Orders> findAllForAdmin() {
+        return ordersRepository.findAllByAdmin();
+    }
+
 }
