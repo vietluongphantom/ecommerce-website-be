@@ -1,6 +1,5 @@
 package com.ptit.e_commerce_website_be.do_an_nhom.controllers;
 
-//import com.ptit.e_commerce_website_be.do_an_nhom.models.responses.CommonResult;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.response.CommonResult;
 import com.ptit.e_commerce_website_be.do_an_nhom.services.rate.RateService;
 import lombok.RequiredArgsConstructor;

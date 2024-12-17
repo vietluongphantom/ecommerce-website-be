@@ -1,7 +1,6 @@
 package com.ptit.e_commerce_website_be.do_an_nhom.controllers;
 
 import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.CommentDTO;
-//import com.ptit.e_commerce_website_be.do_an_nhom.dtos.request.AddCommentRequestDTO;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.request.AddCommentRequestDTO;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.request.UpdateCommentRequestDTO;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.User;

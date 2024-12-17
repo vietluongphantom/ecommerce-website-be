@@ -28,4 +28,7 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
             "JOIN Orders o ON oi.orderId = o.id " +
             "WHERE o.userId = :userId AND pi.productId = :productId")
     boolean hasUserPurchasedProduct(@Param("userId") Long userId, @Param("productId") Long productId);
+
+    @Query("SELECT oi FROM OrderItem oi WHERE oi.orderId IN :orderIds")
+    List<OrderItem> findByOrderIds(@Param("orderIds") List<Long> orderIds);
 }
