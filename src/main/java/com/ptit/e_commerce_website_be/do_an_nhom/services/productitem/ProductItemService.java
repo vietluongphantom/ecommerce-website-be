@@ -21,5 +21,7 @@ public interface ProductItemService {
     Map<String, Object> getProductItemByAttributesValues(Long id, List<Long> valuesIds);
 
     List<ProductItem> getListProductItemByProductId(Long id, Long userId);
+
+    void rollbackQuantity(List<Long> listOrderId);
 }
 

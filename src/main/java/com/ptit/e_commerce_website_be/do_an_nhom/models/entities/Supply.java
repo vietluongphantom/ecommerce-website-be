@@ -25,14 +25,16 @@ import java.time.LocalDateTime;
                         @ColumnResult(name = "warehouse", type = String.class),
                         @ColumnResult(name = "location", type = String.class),
                         @ColumnResult(name = "created_at", type = LocalDateTime.class),
-                        @ColumnResult(name = "is_delete", type = Boolean.class)
+                        @ColumnResult(name = "is_delete", type = Boolean.class),
+                        @ColumnResult(name = "price", type = BigDecimal.class),
+//                        @ColumnResult(name = "product_id", type = Long.class)
                 }
         )
 )
 
 @NamedNativeQuery(
         name = "Supply.getAllImport",
-        query = "SELECT s.id, s.quantity, pi.sku_code, p.name, s.supplier, pi.import_price, w.name AS warehouse, s.location, s.created_at , w.is_delete " +
+        query = "SELECT s.id, s.quantity, pi.sku_code, p.name, s.supplier, pi.import_price, w.name AS warehouse, s.location, s.created_at , w.is_delete, pi.price " +
                 "FROM Supply s " +
                 "INNER JOIN Product_item pi ON pi.id = s.product_item_Id " +
                 "INNER JOIN Warehouse w ON w.id = s.warehouse_Id " +
@@ -50,10 +52,34 @@ import java.time.LocalDateTime;
         resultSetMapping = "DetailSupplyMapping"
 )
 
+@NamedNativeQuery(
+        name = "Supply.getAllListImport",
+        query = "SELECT s.id, s.quantity, pi.sku_code, p.name, s.supplier, pi.import_price, w.name AS warehouse, s.location, s.created_at , w.is_delete, pi.price " +
+                "FROM Supply s " +
+                "INNER JOIN Product_item pi ON pi.id = s.product_item_Id " +
+                "INNER JOIN Warehouse w ON w.id = s.warehouse_Id " +
+                "INNER JOIN Product p ON p.id = pi.product_Id " +
+                "WHERE s.status = 1 AND w.shop_Id = :shop_id " +
+                "ORDER BY s.created_at ",
+        resultSetMapping = "DetailSupplyMapping"
+)
+
+@NamedNativeQuery(
+        name = "Supply.getAllImportData",
+        query = "SELECT s.id, s.quantity, pi.sku_code, p.name, s.supplier, pi.import_price, w.name AS warehouse, s.location, s.created_at , w.is_delete, pi.price " +
+                "FROM Supply s " +
+                "INNER JOIN Product_item pi ON pi.id = s.product_item_Id " +
+                "INNER JOIN Warehouse w ON w.id = s.warehouse_Id " +
+                "INNER JOIN Product p ON p.id = pi.product_Id " +
+                "WHERE s.status = 1 AND w.shop_Id = :shop_id " +
+                "ORDER BY s.created_at ",
+        resultSetMapping = "DetailSupplyMapping"
+)
+
 
 @NamedNativeQuery(
         name = "Supply.getAllExport",
-        query = "SELECT s.id , s.quantity, pi.sku_code, p.name, s.supplier, pi.import_price, w.name AS warehouse, s.location , s.created_at, w.is_delete  " +
+        query = "SELECT s.id , s.quantity, pi.sku_code, p.name, s.supplier, pi.import_price, w.name AS warehouse, s.location , s.created_at, w.is_delete, pi.price " +
                 "FROM Supply s " +
                 "INNER JOIN Product_item pi ON pi.id = s.product_item_Id " +
                 "INNER JOIN Warehouse w ON w.id = s.warehouse_Id " +

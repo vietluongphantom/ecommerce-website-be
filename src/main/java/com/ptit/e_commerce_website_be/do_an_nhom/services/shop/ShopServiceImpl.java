@@ -108,4 +108,10 @@ public class ShopServiceImpl implements ShopService{
 //        return shopId;
 //    }
 
+
+    @Override
+    public Shop getShopInfoByUserId(Long id) {
+        Shop shop = shopRepository.findByUserId(id);
+        return shop;
+    }
 }

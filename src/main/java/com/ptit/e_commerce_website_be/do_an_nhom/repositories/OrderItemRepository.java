@@ -17,8 +17,8 @@ import java.util.List;
 @Repository
 public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
 
+//    static List<OrderItem> findByOrderId(Long orderId);
     List<OrderItem> findByOrderId(Long orderId);
-
     Optional<List<OrderItem>> findAllByProductItemId(Long id);
 
     List<OrderItem> findAllByOrderId(Long id);
@@ -31,4 +31,6 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
 
     @Query("SELECT oi FROM OrderItem oi WHERE oi.orderId IN :orderIds")
     List<OrderItem> findByOrderIds(@Param("orderIds") List<Long> orderIds);
+
+
 }

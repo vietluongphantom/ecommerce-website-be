@@ -3,6 +3,7 @@ package com.ptit.e_commerce_website_be.do_an_nhom.services.product;
 
 import com.ptit.e_commerce_website_be.do_an_nhom.exceptions.DataNotFoundException;
 import com.ptit.e_commerce_website_be.do_an_nhom.mapper.ProductMapper;
+import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.DetailInventoryDTO;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.ProductDTO;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.*;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.response.ProductResponse;
@@ -12,14 +13,26 @@ import com.ptit.e_commerce_website_be.do_an_nhom.services.images.ImagesService;
 import com.ptit.e_commerce_website_be.do_an_nhom.services.productitem.ProductItemServiceImpl;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.ptit.e_commerce_website_be.do_an_nhom.configs.Constant.*;
 
 @Service
 @RequiredArgsConstructor
@@ -247,12 +260,50 @@ public class ProductServiceImpl implements IProductService {
         return product;
     }
 
+    @Override
+    public ByteArrayInputStream getProductDataDownloaded(Long userId) throws IOException {
+        Shop shop = shopRepository.findByUserId(userId);
+        List<ProductResponse> productResponseList = new ArrayList<>();
+        productsRepository.getProductDataForExcel(shop.getId()).stream()
+                .forEach(product -> {
+                    List<String> categoryNames = product.getCategoryList().stream()
+                            .map(Category::getName)
+                            .collect(Collectors.toList());
+
+                    // Xử lý Optional Brand để tránh NoSuchElementException
+                    Optional<Brand> brand = brandRepository.findById(product.getBrandId());
+                    List<String> imageList = imagesRepository.findLinkByProductId(product.getId());
+
+                    ProductResponse productResponse = ProductResponse.builder()
+                            .id(product.getId())
+                            .name(product.getName())
+                            .description(product.getDescription())
+                            .minPrice(product.getMinPrice())
+                            .totalSold(product.getTotalSold())
+                            .thumbnail(product.getThumbnail())
+
+                            .brandId(brand.get().getId())
+                            .brandName(brand.get().getName())
+
+                            .images(imageList)
+                            .categoryNames(categoryNames)
+                            .categories(product.getCategoryList())
+                            .createdAt(product.getCreatedAt())
+                            .modifiedAt(product.getModifiedAt())
+                            .build();
+                    productResponseList.add(productResponse);
+                });
+        ByteArrayInputStream data = dataProductToExcel(productResponseList);
+        return data;
+    }
+
 
     @Override
     public ProductResponse getProductById(Long id){
         Product product = productsRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("product not found"));
         Rate rate = rateRepository.findByProductId(id);
+        Shop shop = shopRepository.findById(product.getShopId()).get();
         Optional<Brand> brand = brandRepository.findById(product.getBrandId());
         List<String> imageList = imagesRepository.findLinkByProductId(product.getId());
         List<ProductAttributes> productAttributes= productAttributesRepository.findAllByProductId(id);
@@ -276,6 +327,7 @@ public class ProductServiceImpl implements IProductService {
                 .description(product.getDescription())
                 .thumbnail(product.getThumbnail())
                 .averageRate(rate == null? BigDecimal.valueOf(0):rate.getAverageStars())
+                .Shop(shop)
                 .brandId(brand.get().getId())
                 .images(imageList)
                 .brandName(brand.get().getName())
@@ -285,5 +337,62 @@ public class ProductServiceImpl implements IProductService {
                 .modifiedAt(product.getModifiedAt())
                 .build();
     }
+
+
+    public static ByteArrayInputStream dataProductToExcel(List<ProductResponse> productResponseList) throws IOException {
+        Workbook workbook  = new XSSFWorkbook();
+
+        ByteArrayOutputStream byteArrayOutputStream  = new ByteArrayOutputStream();
+        try {
+            Sheet sheet = workbook.createSheet(SHEET_NAME);
+            Row row = sheet.createRow(0);
+
+            for (int i  =0; i< HEADER_ALL_LIST_PRODUCT.length;i++){
+
+                Cell cell = row.createCell(i);
+                cell.setCellValue(HEADER_ALL_LIST_PRODUCT[i]);
+            }
+
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+            int rowIndex = 1;
+            for (ProductResponse p :productResponseList){
+                Row row1 = sheet.createRow(rowIndex);
+                rowIndex++;
+                row1.createCell(0).setCellValue(p.getId());
+                row1.createCell(1).setCellValue(p.getName());
+                row1.createCell(2).setCellValue(p.getMinPrice().doubleValue());
+                row1.createCell(3).setCellValue(p.getTotalSold()==null?0:p.getTotalSold());
+                row1.createCell(4).setCellValue(p.getBrandName());
+//                row1.createCell(5).setCellValue(p.getCategoryNames());
+                row1.createCell(5).setCellValue(String.join(", ", p.getCategoryNames()));
+                row1.createCell(6).setCellValue(String.join(", ", p.getImages()));
+                row1.createCell(7).setCellValue(p.getAverageRate()==null?0:p.getAverageRate().doubleValue());
+                row1.createCell(8).setCellValue(p.getQuantity()==null?0:p.getQuantity());
+                row1.createCell(9).setCellValue(p.getDescription());
+                row1.createCell(10).setCellValue(p.getCreatedAt().format(formatter));
+            }
+
+            workbook.write(byteArrayOutputStream);
+            return  new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        finally {
+            workbook.close();
+            byteArrayOutputStream.close();
+        }
+    }
+
+
+    @Autowired
+    private ProductRepository productRepository;
+
+    @Override
+    public Product findProductById(Long productId) {
+        return productRepository.findById(productId)
+                .orElseThrow(() -> new DataNotFoundException("Product not found with ID: " + productId));
+    }
+
 }
 

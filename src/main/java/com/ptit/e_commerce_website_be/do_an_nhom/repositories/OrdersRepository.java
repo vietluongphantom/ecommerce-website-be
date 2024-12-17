@@ -1,6 +1,8 @@
 package com.ptit.e_commerce_website_be.do_an_nhom.repositories;
 
+import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.OrderItem;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.Orders;
+import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -31,6 +33,12 @@ public interface OrdersRepository extends JpaRepository<Orders, Long> {
 //    @Query("SELECT COUNT(*) FROM Orders o WHERE o.shopId = ?1")
 //    Long getQuantityByShopId(Long shopId);
 
+    List<Orders> findByIdIn(List<Long> ids);
+
+    @Query("SELECT o FROM Orders o")
+    List<Orders> findAllByAdmin();
+}
+
     /////
 // Thống kê tổng doanh thu
     @Query("SELECT SUM(o.totalPrice) FROM Orders o WHERE o.status = 'COMPLETED'")
@@ -59,6 +67,7 @@ public interface OrdersRepository extends JpaRepository<Orders, Long> {
             "FROM Orders o WHERE o.status = 'COMPLETED' AND FUNCTION('YEAR', o.createdAt) = :year " +
             "GROUP BY FUNCTION('MONTH', o.createdAt)")
     List<Object[]> getMonthlyRevenue(@Param("year") int year);
+
 
     @Query("SELECT FUNCTION('MONTH', o.createdAt) as month, SUM(o.totalPrice) as revenue " +
             "FROM Orders o WHERE o.status = 'COMPLETED' AND FUNCTION('YEAR', o.createdAt) = :year AND o.shopId = :shopId " +

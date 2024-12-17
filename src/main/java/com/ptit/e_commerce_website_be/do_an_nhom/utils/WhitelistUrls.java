@@ -31,5 +31,11 @@ public class WhitelistUrls {
             "/api/statistics/**",
             "/api/address-detail/**",
             "/api/categoryStatistics/**",
+            "/api/attribute-values",
+            "/api/payments/**",
+            "/api/report/**",
+            "/api/chat/**",
+            "/ws/**",
+            "/socket.io/**"
     };
 }

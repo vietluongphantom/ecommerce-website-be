@@ -17,11 +17,14 @@ import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.RegisterUserDto;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.response.LoginResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -133,4 +136,51 @@ public class UserController {
                 .build();
         return CommonResult.success(loginResponse);
     }
+
+    @GetMapping("/sellers")
+//    @PreAuthorize("hasRole('ADMIN')")
+    public CommonResult<List<User>> getAllSellers() {
+        List<User> sellers = userService.findAllSellers();
+        return CommonResult.success(sellers, "Get all sellers successfully");
+    }
+
+    @GetMapping("/users")
+    @PreAuthorize("hasRole('ADMIN')")
+    public CommonResult<List<User>> getAllUsers() {
+        List<User> users = userService.findAllUsers();
+        return CommonResult.success(users, "Get all users successfully");
+    }
+
+
+    @PutMapping("/updateUserStatus")
+    public CommonResult<Object> updateUserStatus(
+            @RequestBody Map<String, Object> requestBody
+    ) {
+        try {
+            Long userId = Long.valueOf(requestBody.get("userId").toString());
+            Boolean status = Boolean.valueOf(requestBody.get("status").toString());
+
+            userService.updateUserStatus(userId, status);
+            return CommonResult.success("User status updated successfully");
+        } catch (Exception e) {
+            log.error("Failed to update user status: {}", e.getMessage(), e);
+            return CommonResult.forbidden("Failed to update user status: " + e.getMessage());
+        }
+    }
+//    @PutMapping("/{id}/status")
+//    public ResponseEntity<?> updateUserStatus(
+//            @PathVariable Long id,
+//            @RequestParam Boolean status) {
+//        try {
+//            // Gọi hàm service để cập nhật trạng thái user
+//            User updatedUser = userService.updateUserStatus(id, status);
+//
+//            // Trả về kết quả nếu cập nhật thành công
+//            return ResponseEntity.ok(updatedUser);
+//        } catch (Exception e) {
+//            // Xử lý lỗi
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+//        }
+//    }
+
 }

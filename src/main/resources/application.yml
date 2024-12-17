@@ -60,3 +60,14 @@ cloudinary:
 stripe:
   api:
     key: ${STRIPE_API_KEY}
+
+payment:
+  vnPay:
+    url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+    createOrderUrl: https://sandbox.vnpayment.vn/merchant_webapi/merchant.html
+    tmnCode: ${PAYMENT_TMN_CODE}
+    secretKey: ${PAYMENT_KEY}
+    returnUrl: http://localhost:3000/api/payments/vn-pay-callback
+    version: 2.1.0
+    command: pay
+    orderType: other

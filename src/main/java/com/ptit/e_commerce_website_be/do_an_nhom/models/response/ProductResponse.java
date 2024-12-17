@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.Category;
+import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.Shop;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -82,6 +83,9 @@ public class ProductResponse {
     private ArrayList<Object> attributeAndValues;
 
     private Long quantity;
+
+    @JsonProperty("shop")
+    private Shop Shop;
 }
 
 

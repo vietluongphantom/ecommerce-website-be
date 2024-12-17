@@ -8,6 +8,27 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+@SqlResultSetMapping(
+        name = "DetailInventoryDataMapping",
+        classes = @ConstructorResult(
+                targetClass = DetailInventoryDTO.class,
+                columns = {
+                        @ColumnResult(name = "id", type = Long.class),
+                        @ColumnResult(name = "quantity", type = Integer.class),
+                        @ColumnResult(name = "sku_code", type = String.class),
+                        @ColumnResult(name = "name", type = String.class),
+                        @ColumnResult(name = "warehouse", type = String.class),
+                        @ColumnResult(name = "import_price", type = BigDecimal.class),
+                        @ColumnResult(name = "created_at", type = LocalDateTime.class),
+                        @ColumnResult(name = "product_id", type = Long.class),
+                        @ColumnResult(name = "price", type = BigDecimal.class),
+                }
+        )
+)
+
 @SqlResultSetMapping(
         name = "DetailInventoryMapping",
         classes = @ConstructorResult(
@@ -16,7 +37,7 @@ import lombok.NoArgsConstructor;
                         @ColumnResult(name = "quantity", type = Integer.class),
                         @ColumnResult(name = "sku_code", type = String.class),
                         @ColumnResult(name = "name", type = String.class),
-                        @ColumnResult(name = "warehouse", type = String.class)
+                        @ColumnResult(name = "warehouse", type = String.class),
                 }
         )
 )
@@ -25,8 +46,8 @@ import lombok.NoArgsConstructor;
         name = "Inventory.getAllInventory",
         query = "SELECT i.quantity, pi.sku_code, p.name, w.name AS warehouse " +
                 "FROM Inventory i " +
-                "INNER JOIN Product_item pi ON pi.id = i.product_item_Id " +
-                "INNER JOIN Warehouse w ON w.id = i.warehouse_Id " +
+                "INNER JOIN Product_item pi ON pi.id = i.product_item_id " +
+                "INNER JOIN Warehouse w ON w.id = i.warehouse_id " +
                 "INNER JOIN Product p ON p.id = pi.product_Id " +
                 "WHERE w.shop_Id = :shop_id " +
                 "AND w.name LIKE CONCAT('%', :warehouse,'%') " +
@@ -36,6 +57,16 @@ import lombok.NoArgsConstructor;
         resultSetMapping = "DetailInventoryMapping"
 )
 
+@NamedNativeQuery(
+        name = "Inventory.getAllListInventoryData",
+        query = "SELECT i.id, i.quantity ,pi.sku_code , p.name, w.name AS warehouse,p.created_at ,pi.import_price , pi.price, p.id as product_id " +
+                "FROM Inventory i " +
+                "INNER JOIN Product_item pi ON pi.id = i.product_item_id " +
+                "INNER JOIN Warehouse w ON w.id = i.warehouse_id " +
+                "INNER JOIN Product p ON p.id = pi.product_Id " +
+                "WHERE w.shop_Id = :shop_id ",
+        resultSetMapping = "DetailInventoryDataMapping"
+)
 
 
 

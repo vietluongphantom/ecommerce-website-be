@@ -78,7 +78,7 @@ public class SellerController {
     }
 
     @GetMapping("/information")
-    @PreAuthorize("hasAnyRole('SELLER')")
+//    @PreAuthorize("hasAnyRole('SELLER')")
     public CommonResult<DetailSellerInfoDTO> getInformationSeller() {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return  CommonResult.success(sellerService.getSellerInfo(user.getId()),"get information seller successfully");
@@ -99,4 +99,14 @@ public class SellerController {
         result = sellerService.getBasicInfo(user.getId());
         return CommonResult.success(result,"get basic information success");
     }
+
+    @GetMapping("/information/{sellerId}")
+//    @PreAuthorize("hasAnyRole('ADMIN')") // Chỉ cho phép admin truy cập
+    public CommonResult<DetailSellerInfoDTO> getSellerInformationByAdmin(@PathVariable Long sellerId) {
+        return CommonResult.success(
+                sellerService.getSellerInfo(sellerId),
+                "Get seller information successfully"
+        );
+    }
+
 }

@@ -20,6 +20,7 @@ public interface UserService {
     User getAuthenticatedUser();
     Page<User> allUsers(Pageable pageable);
     List<User> findAllSellers();
+    List<User> findAllUsers();
     Page<User> allSellers(Pageable pageable);
     User getUserDetailsFromToken(String token);
     User getUserDetailsFromRefreshToken(String refreshToken);
@@ -45,4 +46,6 @@ public interface UserService {
     void addSellerRole(String email);
 
     String sendOtpForForgotPasswordRequest(String email);
+
+    void updateUserStatus(Long userId, Boolean status);
 }

@@ -1,7 +1,10 @@
 package com.ptit.e_commerce_website_be.do_an_nhom.mapper;
 
 import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.OrdersDTO;
+import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.OrderItem;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.Orders;
+import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.OrderItemDTO;
+import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.OrderItemDTO;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -44,5 +47,15 @@ public class OrderMapper {
                 .method(orderDTO.isMethod())
                 .build();
     }
+//    public OrderItemDTO toOrderItemDTO(OrderItem orderItem) {
+//        return OrderItemDTO.builder()
+//                .id(orderItem.getId())
+//                .productId(orderItem.getProductId())
+//                .quantity(orderItem.getQuantity())
+//                .price(orderItem.getPrice())
+//                .orderId(orderItem.getOrderId())
+//                // Thêm các thuộc tính khác nếu cần
+//                .build();
+//    }
 
 }

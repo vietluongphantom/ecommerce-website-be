@@ -67,6 +67,14 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             Pageable pageable);
 
 
+    @Query("SELECT p FROM Product p " +
+            "LEFT JOIN p.categoryList c " +
+            "WHERE p.isDelete = False " +
+            "AND p.shopId = :shopId " +
+            "GROUP BY p.id ")
+    List<Product> getProductDataForExcel(Long shopId);
+
+
     @Modifying
     @Query("UPDATE Product p SET p.isDelete = true WHERE p.id = :id")
     void softDeleteProductByCategoryId(Long id);
@@ -85,5 +93,13 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "WHERE pi.quantity > 0 AND (p.isDelete = false OR p.isDelete IS NULL) " +
             "AND (pi.isDelete = false OR pi.isDelete IS NULL)")
     List<Product> findAllAvailableProductsWithAttributes();
+
+
+//    @Query("SELECT  FROM Product p WHERE p.shopId = ?1")
+//    Product findProductByProductItemId(Long id);
+
+
+    @Query("SELECT p FROM Product p WHERE p.id IN :productItemIds")
+    List<Product> findAllByIds(@Param("productItemIds") List<Long> productItemIds);
 }
 
