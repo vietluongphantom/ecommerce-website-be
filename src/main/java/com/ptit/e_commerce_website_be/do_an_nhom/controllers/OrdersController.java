@@ -5,14 +5,16 @@ import com.ptit.e_commerce_website_be.do_an_nhom.mapper.OrderItemMapper;
 import com.ptit.e_commerce_website_be.do_an_nhom.mapper.OrderMapper;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.OrdersDTO;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.OrderItemDTO;
-import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.OrderItem;
-import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.OrderStatusHistory;
-import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.Orders;
-import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.User;
+import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.ProductDTO;
+import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.*;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.response.CommonResult;
 import com.ptit.e_commerce_website_be.do_an_nhom.repositories.OrderStatusHistoryRepository;
+import com.ptit.e_commerce_website_be.do_an_nhom.repositories.ProductItemRepository;
+import com.ptit.e_commerce_website_be.do_an_nhom.repositories.ProductRepository;
 import com.ptit.e_commerce_website_be.do_an_nhom.repositories.OrderItemRepository;
 import com.ptit.e_commerce_website_be.do_an_nhom.services.orders.IOrdersService;
+import com.ptit.e_commerce_website_be.do_an_nhom.services.productitem.ProductItemService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +22,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,6 +48,8 @@ public class OrdersController {
 //                .map(order -> CommonResult.success(orderMapper.toDto(order), "Get order successfully"))
 //                .orElse(CommonResult.error(404, "Order not found"));
 //    }
+
+//
 @GetMapping("/{id}")
 public CommonResult<OrdersDTO> getOrderById(@PathVariable Long id) {
     return iOrdersService.findById(id)
@@ -63,6 +68,7 @@ public CommonResult<OrdersDTO> getOrderById(@PathVariable Long id) {
             })
             .orElse(CommonResult.error(404, "Order not found"));
 }
+
 
 
     @GetMapping("/user")
@@ -176,5 +182,17 @@ public CommonResult<OrdersDTO> getOrderById(@PathVariable Long id) {
         } else {
             return ResponseEntity.ok(CommonResult.failed("User has not purchased the product"));
         }
+    }
+
+    @GetMapping("/admin")
+//    @PreAuthorize("hasRole('ADMIN')")
+    public CommonResult<List<OrdersDTO>> getAllOrdersForAdmin() {
+        // Lấy tất cả Orders
+        List<Orders> orders = iOrdersService.findAllForAdmin();
+
+        // Chuyển đổi sang DTO
+        List<OrdersDTO> ordersDTOs = orders.stream().map(orderMapper::toDto).collect(Collectors.toList());
+
+        return CommonResult.success(ordersDTOs, "Get all orders for admin successfully");
     }
 }

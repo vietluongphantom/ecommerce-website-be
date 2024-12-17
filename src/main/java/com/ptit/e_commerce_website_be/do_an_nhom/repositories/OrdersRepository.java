@@ -28,5 +28,8 @@ public interface OrdersRepository extends JpaRepository<Orders, Long> {
 //    Long getQuantityByShopId(Long shopId);
 
     List<Orders> findByIdIn(List<Long> ids);
+
+    @Query("SELECT o FROM Orders o")
+    List<Orders> findAllByAdmin();
 }
 

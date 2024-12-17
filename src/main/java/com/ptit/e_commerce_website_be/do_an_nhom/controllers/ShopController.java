@@ -20,7 +20,7 @@ public class ShopController {
 
     private final ShopService shopService;
     @GetMapping
-    @PreAuthorize("hasAnyRole('SELLER')")
+//    @PreAuthorize("hasAnyRole('SELLER')")
     public CommonResult<DetailShopInfoDTO> getInformationShop() {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return  CommonResult.success(shopService.getShopInfo(user.getId()),"get information shop successfully");
@@ -59,5 +59,14 @@ public class ShopController {
             @PathVariable Long id
     ){
         return  CommonResult.success(shopService.getShopInfoByUserId(id),"get information shop successfully");
+    }
+
+    @GetMapping("/information/{sellerId}")
+//    @PreAuthorize("hasAnyRole('ADMIN')") // Chỉ cho phép admin truy cập
+    public CommonResult<DetailShopInfoDTO> getShopInformationByAdmin(@PathVariable Long sellerId) {
+        return CommonResult.success(
+                shopService.getShopInfo(sellerId),
+                "Get shop information successfully"
+        );
     }
 }
