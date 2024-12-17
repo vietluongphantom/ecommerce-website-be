@@ -137,6 +137,7 @@ public class CheckoutServiceImpl implements ICheckoutService {
     private void saveOrderStatusHistory(Orders order, Orders.OrderStatus status) {
         OrderStatusHistory history = OrderStatusHistory.builder()
                 .orderId(order.getId())
+                .userId(order.getUserId())
                 .status(status)
                 .changedAt(LocalDateTime.now())
                 .build();
@@ -239,10 +240,21 @@ public class CheckoutServiceImpl implements ICheckoutService {
         }
 
         // Cập nhật trạng thái của từng đơn hàng
-        orders.forEach(order -> order.setStatus((Orders.OrderStatus) statusOrder));
+        orders.forEach(order -> {
+            order.setStatus((Orders.OrderStatus) statusOrder);
+//            Notification notification = Notification.builder()
+//                    .userId(order.getUserId())
+//                    .orderId(order.getId())
+//                    .status()
+//                .build();
+        });
 
         // Lưu các thay đổi vào cơ sở dữ liệu
         orderRepository.saveAll(orders);
+
+        //
+
+
     }
 
     private BigDecimal processCartItemsForTotal(List<CartItem> cartItemList) {
