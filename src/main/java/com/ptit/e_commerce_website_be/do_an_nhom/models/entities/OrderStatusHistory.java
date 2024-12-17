@@ -32,6 +32,9 @@ public class OrderStatusHistory {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS")
     private LocalDateTime changedAt;
 
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
+
     @PrePersist
     protected void onCreate() {
         changedAt = LocalDateTime.now();

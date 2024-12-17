@@ -33,7 +33,6 @@ public class OrdersController {
 
     private final OrderMapper orderMapper;
     private final IOrdersService iOrdersService;
-    private final OrderStatusHistoryRepository orderStatusHistoryRepository;
 
     @GetMapping
     public CommonResult<List<OrdersDTO>> getAllOrders(){

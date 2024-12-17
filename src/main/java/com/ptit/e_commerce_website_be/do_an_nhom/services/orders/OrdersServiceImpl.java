@@ -105,6 +105,7 @@ public class OrdersServiceImpl implements IOrdersService {
         // Lưu vào lịch sử thay đổi trạng thái
         OrderStatusHistory history = OrderStatusHistory.builder()
                 .orderId(orderId)
+                .userId(order.getUserId())
                 .status(newStatus)
                 .build();
         orderStatusHistoryRepository.save(history);

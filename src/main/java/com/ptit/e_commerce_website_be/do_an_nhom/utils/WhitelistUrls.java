@@ -29,6 +29,9 @@ public class WhitelistUrls {
             "/api/rates/**",
             "/api/attribute-values",
             "/api/payments/**",
-            "/api/report/**"
+            "/api/report/**",
+            "/api/chat/**",
+            "/ws/**",
+            "/socket.io/**"
     };
 }

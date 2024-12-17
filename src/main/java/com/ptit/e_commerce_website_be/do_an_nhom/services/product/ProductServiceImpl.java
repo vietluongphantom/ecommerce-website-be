@@ -302,7 +302,7 @@ public class ProductServiceImpl implements IProductService {
     public ProductResponse getProductById(Long id){
         Product product = productsRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("product not found"));
-
+        Shop shop = shopRepository.findById(product.getShopId()).get();
         Optional<Brand> brand = brandRepository.findById(product.getBrandId());
         List<String> imageList = imagesRepository.findLinkByProductId(product.getId());
         List<ProductAttributes> productAttributes= productAttributesRepository.findAllByProductId(id);
@@ -325,7 +325,7 @@ public class ProductServiceImpl implements IProductService {
                 .minPrice(product.getMinPrice())
                 .description(product.getDescription())
                 .thumbnail(product.getThumbnail())
-
+                .Shop(shop)
                 .brandId(brand.get().getId())
                 .images(imageList)
                 .brandName(brand.get().getName())

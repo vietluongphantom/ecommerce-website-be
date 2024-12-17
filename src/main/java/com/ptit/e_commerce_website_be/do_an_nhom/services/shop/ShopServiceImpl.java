@@ -98,4 +98,10 @@ public class ShopServiceImpl implements ShopService{
                 .orElseThrow(() -> new DataNotFoundException("Cannot find shop information"));
         return detailShopInfoDTO;
     }
+
+    @Override
+    public Shop getShopInfoByUserId(Long id) {
+        Shop shop = shopRepository.findByUserId(id);
+        return shop;
+    }
 }

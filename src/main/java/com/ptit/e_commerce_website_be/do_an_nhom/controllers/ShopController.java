@@ -2,6 +2,7 @@ package com.ptit.e_commerce_website_be.do_an_nhom.controllers;
 
 import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.DetailSellerInfoDTO;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.DetailShopInfoDTO;
+import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.Shop;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.User;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.response.CommonResult;
 import com.ptit.e_commerce_website_be.do_an_nhom.services.seller.SellerService;
@@ -49,6 +50,15 @@ public class ShopController {
     ){
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return  CommonResult.success(shopService.getShopInfoById(id,user.getId()),"get information shop successfully");
+    }
+
+
+    @GetMapping("user/{id}")
+//    @PreAuthorize("hasAnyRole('SELLER')")
+    public CommonResult<Shop> getInformationShopByUserId(
+            @PathVariable Long id
+    ){
+        return  CommonResult.success(shopService.getShopInfoByUserId(id),"get information shop successfully");
     }
 
     @GetMapping("/information/{sellerId}")
