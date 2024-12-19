@@ -230,9 +230,26 @@ public CommonResult<OrdersDTO> getOrderById(@PathVariable Long id) {
 //        return ResponseEntity.ok(addressDetails);
 //    }
 
+    //Danh sach tinh thanh goc
+//    @GetMapping("/address-detail")
+//    public ResponseEntity<List<String>> getAddressDetails() {
+//        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//
+//        // Lấy thông tin shopId từ userId thông qua repository
+//        Shop shopOpt = shopRepository.findByUserId(user.getId());
+//        if (shopOpt != null) {
+//            Long shopId = shopOpt.getId();
+//
+//            // Gọi service logic với shopId
+//            List<String> addressDetails = ordersService.getAddressDetailsByShopId(shopId);
+//            return ResponseEntity.ok(addressDetails);
+//        } else {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList());
+//        }
+//    }
 
     @GetMapping("/address-detail")
-    public ResponseEntity<List<String>> getAddressDetails() {
+    public ResponseEntity<Map<String, Integer>> getAddressDetails() {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         // Lấy thông tin shopId từ userId thông qua repository
@@ -242,11 +259,52 @@ public CommonResult<OrdersDTO> getOrderById(@PathVariable Long id) {
 
             // Gọi service logic với shopId
             List<String> addressDetails = ordersService.getAddressDetailsByShopId(shopId);
-            return ResponseEntity.ok(addressDetails);
+
+            // Danh sách 63 tỉnh thành
+            List<String> provinces = Arrays.asList(
+                    "Ha Noi", "Ho Chi Minh", "Hai Phong", "Can Tho", "Da Nang", "Binh Duong",
+                    "Dong Nai", "Quang Ninh", "Kien Giang", "Khanh Hoa", "Nghe An", "Hai Duong",
+                    "Ha Tinh", "Thanh Hoa", "Soc Trang", "Ben Tre", "Binh Dinh", "Dak Lak",
+                    "Dak Nong", "Lai Chau", "Lam Dong", "Lang Son", "Lao Cai", "Quang Nam",
+                    "Quang Tri", "Quang Binh", "Ninh Binh", "Ninh Thuan", "Gia Lai", "Phu Tho",
+                    "Tien Giang", "Tra Vinh", "Bac Ninh", "Bac Giang", "Yen Bai", "Hoa Binh",
+                    "Ha Giang", "Cao Bang", "Bac Kan", "Tuyen Quang", "Thai Nguyen", "Phu Yen",
+                    "Binh Phuoc", "Ba Ria Vung Tau", "Vinh Phuc", "Thai Binh", "Nam Dinh", "Hung Yen",
+                    "Long An", "An Giang", "Dong Thap", "Vinh Long", "Hau Giang", "Bac Lieu",
+                    "Ca Mau", "Son La", "Dien Bien", "Kon Tum", "Tay Ninh", "Lai Chau", "Hoa Binh",
+                    "Quang Ngai"
+            );
+
+            // Tạo Map để lưu số lần xuất hiện
+            Map<String, Integer> provinceCount = new HashMap<>();
+            provinceCount.put("Khác", 0); // Dùng cho các địa chỉ không nằm trong danh sách
+
+            // Đếm số lần xuất hiện
+            for (String address : addressDetails) {
+                // Tách tỉnh thành từ chuỗi địa chỉ
+                String[] parts = address.split(",");
+                if (parts.length > 0) {
+                    String province = parts[0].trim();
+                    if (provinces.contains(province)) {
+                        provinceCount.put(province, provinceCount.getOrDefault(province, 0) + 1);
+                    } else {
+                        provinceCount.put("Khác", provinceCount.get("Khác") + 1);
+                    }
+                }
+            }
+
+            // Lọc bỏ các tỉnh có số lượng = 0
+            Map<String, Integer> filteredProvinceCount = provinceCount.entrySet().stream()
+                    .filter(entry -> entry.getValue() > 0)
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+            return ResponseEntity.ok(filteredProvinceCount);
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyMap());
         }
     }
+
+
 
 //    @GetMapping("/address-detail/count")
 //    public ResponseEntity<Map<String, Integer>> getCountOfProvinces(@RequestParam("shopId") Long shopId) {
