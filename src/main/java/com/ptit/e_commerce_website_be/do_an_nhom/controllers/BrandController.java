@@ -4,21 +4,27 @@ import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.BrandDTO;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.Brand;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.User;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.response.CommonResult;
+import com.ptit.e_commerce_website_be.do_an_nhom.services.BrandService;
 import com.ptit.e_commerce_website_be.do_an_nhom.services.brand.IBrandService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/brands")
 public class BrandController {
     private final IBrandService brandService;
+    private final BrandService brandService2;
 
     @GetMapping("/{id}")
     public CommonResult<Brand> getBrandById(
@@ -68,5 +74,14 @@ public class BrandController {
         User user = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Brand brand = brandService.updateBrand(id, brandDTO, user.getId());
         return CommonResult.success(brand, "Update brand successfully");
+    }
+
+//    public BrandController(BrandService brandService) {
+//        this.brandService2 = brandService2;
+//    }
+
+    @GetMapping("/product-count")
+    public ResponseEntity<List<Map<String, Object>>> getBrandNamesWithProductCount() {
+        return ResponseEntity.ok(brandService2.getBrandNamesWithProductCount());
     }
 }

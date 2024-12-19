@@ -5,13 +5,19 @@ import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.DetailShopInfoDTO;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.Shop;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.User;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.response.CommonResult;
+import com.ptit.e_commerce_website_be.do_an_nhom.repositories.ShopRepository;
 import com.ptit.e_commerce_website_be.do_an_nhom.services.seller.SellerService;
 import com.ptit.e_commerce_website_be.do_an_nhom.services.shop.ShopService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/shop")
@@ -69,4 +75,36 @@ public class ShopController {
                 "Get shop information successfully"
         );
     }
+//
+//    @GetMapping("/current-id")
+//    @PreAuthorize("hasAnyRole('SELLER')")
+//    public CommonResult<Long> getCurrentShopId() {
+//        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//        Long shopId = shopService.getCurrentShopId(user.getId());
+//        return CommonResult.success(shopId, "Get current shop ID successfully");
+//    }
+//
+//    private final ShopRepository shopRepository;
+//
+//    @Autowired
+//    public ShopController(ShopRepository shopRepository) {
+//        this.shopRepository = shopRepository;
+//    }
+//
+//    @GetMapping("/getShopId")
+//    @PreAuthorize("hasAnyRole('SELLER')")
+//    public ResponseEntity<?> getShopId() {
+//        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//        Long userId = user.getId();
+//
+//        // Tìm thông tin Shop thông qua userId
+//        Optional<Shop> shopOptional = shopRepository.findShopByUserId(userId);
+//
+//        if (shopOptional.isPresent()) {
+//            Shop shop = shopOptional.get();
+//            return ResponseEntity.ok("Found shopId: " + shop.getId());
+//        } else {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Shop not found for userId: " + userId);
+//        }
+//    }
 }

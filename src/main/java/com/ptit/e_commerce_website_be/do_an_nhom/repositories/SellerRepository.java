@@ -37,5 +37,4 @@ public interface SellerRepository extends JpaRepository<Seller, Long> {
     @Query(nativeQuery = true, name = "Seller.getDetailSellerInfo")
     Optional<DetailSellerInfoDTO> getDetailSellerInfo(Long userId);
 
-
 }
