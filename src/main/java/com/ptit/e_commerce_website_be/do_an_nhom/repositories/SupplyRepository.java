@@ -14,7 +14,7 @@ import java.util.List;
 public interface SupplyRepository extends JpaRepository<Supply, Long> {
 
     @Query(name = "Supply.getAllImport", nativeQuery = true)
-    List<DetailInventoryDTO> getAllImport(@Param("warehouse") String warehouse, @Param("supplier") String supplier
+    List<DetailInventoryDTO> getAllImport( @Param("supplier") String supplier
             , @Param("location") String location, @Param("sku_code") String skuCode, @Param("name") String name
             , @Param("created_at")String createdAt, @Param("shop_id") Long shopId, @Param("limit") Integer limit, @Param("offSet") Long offSet);
 
@@ -31,17 +31,17 @@ public interface SupplyRepository extends JpaRepository<Supply, Long> {
             "SELECT COUNT(DISTINCT s.id) " +
                     "FROM Supply s " +
                     "INNER JOIN Product_item pi ON pi.id = s.product_item_Id " +
-                    "INNER JOIN Warehouse w ON w.id = s.warehouse_Id " +
-                    "INNER JOIN Product p ON p.id = pi.product_Id " +
+                    "INNER JOIN Supplier w ON w.id = s.supplier_id " +
+                    "INNER JOIN Product p ON p.id = pi.product_id " +
                     "WHERE s.status = 1 AND w.shop_Id = :shop_id " +
-                    "AND w.name LIKE CONCAT('%', :warehouse,'%') " +
-                    "AND s.supplier LIKE CONCAT('%',:supplier,'%') " +
+                    "AND w.name LIKE CONCAT('%', :supplier,'%') " +
+//                    "AND s.supplier LIKE CONCAT('%',:supplier,'%') " +
                     "AND s.location LIKE CONCAT('%',:location,'%') " +
                     "AND pi.sku_code LIKE CONCAT('%',:sku_code,'%') " +
                     "AND p.name LIKE CONCAT('%',:name,'%') " +
                     "AND s.created_at LIKE CONCAT('%',:created_at,'%') " +
                     "ORDER BY s.created_at ")
-    int countAllImport(@Param("warehouse") String warehouse, @Param("supplier") String supplier
+    int countAllImport(@Param("supplier") String supplier
             ,@Param("location") String location,@Param("sku_code") String skuCode,@Param("name") String name
             ,@Param("created_at")String createdAt,@Param("shop_id") Long shopId);
 
@@ -49,22 +49,22 @@ public interface SupplyRepository extends JpaRepository<Supply, Long> {
             "SELECT COUNT(DISTINCT s.id) " +
                     "FROM Supply s " +
                     "INNER JOIN Product_item pi ON pi.id = s.product_item_Id " +
-                    "INNER JOIN Warehouse w ON w.id = s.warehouse_Id " +
+                    "INNER JOIN Supplier w ON w.id = s.supplier_Id " +
                     "INNER JOIN Product p ON p.id = pi.product_Id " +
                     "WHERE s.status = 0 AND w.shop_Id = :shop_id " +
-                    "AND w.name LIKE CONCAT('%', :warehouse,'%') " +
-                    "AND s.supplier LIKE CONCAT('%',:supplier,'%') " +
+                    "AND w.name LIKE CONCAT('%', :supplier,'%') " +
+//                    "AND s.supplier LIKE CONCAT('%',:supplier,'%') " +
                     "AND s.location LIKE CONCAT('%',:location,'%') " +
                     "AND pi.sku_code LIKE CONCAT('%',:sku_code,'%') " +
                     "AND p.name LIKE CONCAT('%',:name,'%') " +
                     "AND s.created_at LIKE CONCAT('%',:created_at,'%') " +
                     "ORDER BY s.created_at ")
-    int countAllExport(@Param("warehouse") String warehouse, @Param("supplier") String supplier
+    int countAllExport(@Param("supplier") String supplier
             ,@Param("location") String location,@Param("sku_code") String skuCode,@Param("name") String name
             ,@Param("created_at")String createdAt,@Param("shop_id") Long shopId);
 
     @Query(name = "Supply.getAllExport", nativeQuery = true)
-    List<DetailInventoryDTO> getAllExport(@Param("warehouse") String warehouse, @Param("supplier") String supplier
+    List<DetailInventoryDTO> getAllExport( @Param("supplier") String supplier
             , @Param("location") String location, @Param("sku_code") String skuCode, @Param("name") String name
             , @Param("created_at")String createdAt, @Param("shop_id") Long shopId , @Param("limit") Integer limit, @Param("offSet") Long offSet);
 }

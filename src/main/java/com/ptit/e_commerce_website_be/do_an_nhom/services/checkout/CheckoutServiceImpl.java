@@ -50,7 +50,6 @@ public class CheckoutServiceImpl implements ICheckoutService {
         // Nhóm các CartItem theo shopId
         Map<Long, List<CartItem>> cartItemsByShop = groupCartItemsByShopId(cartItemList);
         Address address = addressRepository.findByUserId(userId).orElseThrow(()-> new DataNotFoundException(""));
-//                .orElseThrow(()-> new DataNotFoundException("Cannot find address by userId"));
         String addressReceiver = address.getCommune() + ", " + address.getDistrict() + ", " + address.getProvince() + "," + address.getCountry();
         List<Orders> ordersList = new ArrayList<>();
         for (Map.Entry<Long, List<CartItem>> entry : cartItemsByShop.entrySet()) {
@@ -62,11 +61,6 @@ public class CheckoutServiceImpl implements ICheckoutService {
                 BigDecimal totalPrice = cartItem.getTotalPrice();
                 int quantity = cartItem.getQuantity();
                 BigDecimal unit = totalPrice.divide(BigDecimal.valueOf(quantity), BigDecimal.ROUND_HALF_UP);
-                //Product
-//                Optional<ProductItem> productItem = productItemRepository.findById(cartItem.getProductItemId());
-//                Optional<Product> product =  productRepository.findById(productItem.get().getProductId());
-                //
-
                 saveOrderItem(orders, cartItem, unit);
                 minusQuantityProductItem(cartItem.getProductItemId(), cartItem.getQuantity());
             }
@@ -77,10 +71,8 @@ public class CheckoutServiceImpl implements ICheckoutService {
             orders.setAddressDetail(address.getAddressDetail());
             orders.setBuyer(user.getFullName());
             orders.setReceiverPhone(user.getPhone());
-//            orders.setShopId(orderDTO.getShopId());
             orderRepository.save(orders);
             ordersList.add(orders);  // Thêm đơn hàng vào danh sách
-
         }
         // Xóa các CartItem đã được xử lý
         cartItemRepository.deleteAllByIdIn(selectedCartItems);
@@ -111,7 +103,6 @@ public class CheckoutServiceImpl implements ICheckoutService {
                 .collect(Collectors.groupingBy(CartItem::getShopId));
     }
 
-
     private Orders createOrder(Long userId, boolean method, String note, Long shopId) {
         // Tạo đối tượng đơn hàng nhưng chưa lưu vào DB
         Orders orders = Orders.builder()
@@ -136,6 +127,8 @@ public class CheckoutServiceImpl implements ICheckoutService {
 
     private void saveOrderStatusHistory(Orders order, Orders.OrderStatus status) {
         OrderStatusHistory history = OrderStatusHistory.builder()
+                .message(createMessage(status))
+                .isRead(Boolean.FALSE)
                 .orderId(order.getId())
                 .userId(order.getUserId())
                 .status(status)
@@ -143,6 +136,30 @@ public class CheckoutServiceImpl implements ICheckoutService {
                 .build();
         orderStatusHistoryRepository.save(history);
     }
+
+    private String createMessage(Orders.OrderStatus status) {
+        switch (status) {
+            case PENDING:
+                return "đang trong trạng thái chờ";
+            case CONFIRMED:
+                return "đã được xác nhận";
+            case SHIPPED:
+                return "đã được giao";
+            case DELIVERED:
+                return "đang được giao";
+            case CANCELLED:
+                return "đã bị huỷ";
+            case PACKED:
+                return "đã được đóng gói và đang trờ vận chuyển";
+            case RETURNED:
+                return "đã được trả lại";
+            case COMPLETED:
+                return "đã hoàn thành";
+            default:
+                return "";
+        }
+    }
+
 
     @Transactional
     private void saveOrderItem(Orders orders, CartItem cartItem, BigDecimal unitPrice) {
@@ -231,6 +248,7 @@ public class CheckoutServiceImpl implements ICheckoutService {
     }
 
     @Override
+    @Transactional
     public void setStatusOrder(Enum<Orders.OrderStatus> statusOrder, List<Long> listOrderId) {
         // Truy vấn danh sách đơn hàng từ cơ sở dữ liệu dựa trên listOrderId
         List<Orders> orders = orderRepository.findByIdIn(listOrderId);
@@ -240,21 +258,22 @@ public class CheckoutServiceImpl implements ICheckoutService {
         }
 
         // Cập nhật trạng thái của từng đơn hàng
+        List<OrderStatusHistory> orderStatusHistoryList = new ArrayList<>();
         orders.forEach(order -> {
             order.setStatus((Orders.OrderStatus) statusOrder);
-//            Notification notification = Notification.builder()
-//                    .userId(order.getUserId())
-//                    .orderId(order.getId())
-//                    .status()
-//                .build();
+            OrderStatusHistory orderStatusHistory = OrderStatusHistory.builder()
+                    .isRead(Boolean.FALSE)
+                    .status((Orders.OrderStatus) statusOrder)
+                    .message(createMessage((Orders.OrderStatus) statusOrder))
+                    .userId(order.getUserId())
+                    .orderId(order.getId())
+                .build();
+            orderStatusHistoryList.add(orderStatusHistory);
         });
 
         // Lưu các thay đổi vào cơ sở dữ liệu
         orderRepository.saveAll(orders);
-
-        //
-
-
+        orderStatusHistoryRepository.saveAll(orderStatusHistoryList);
     }
 
     private BigDecimal processCartItemsForTotal(List<CartItem> cartItemList) {

@@ -4,7 +4,7 @@ package com.ptit.e_commerce_website_be.do_an_nhom.models.entities;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.DetailWarehouseDTO;
+import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.DetailSupplierDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,9 +14,9 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @SqlResultSetMapping(
-        name = "DetailWarehouseMapping",
+        name = "DetailSupplierMapping",
         classes = @ConstructorResult(
-                targetClass = DetailWarehouseDTO.class,
+                targetClass = DetailSupplierDTO.class,
                 columns = {
                         @ColumnResult(name = "name", type = String.class),
                         @ColumnResult(name = "country", type = String.class),
@@ -29,23 +29,23 @@ import java.time.LocalDateTime;
 )
 
 @NamedNativeQuery(
-        name = "Warehouse.getDetailWarehouseInfo",
-        resultSetMapping = "DetailWarehouseMapping",
+        name = "Supplier.getDetailSupplierInfo",
+        resultSetMapping = "DetailSupplierMapping",
         query = "SELECT w.name, a.country, a.province, a.district, a.commune, a.address_detail AS addressDetail " +
-                "FROM warehouse w " +
+                "FROM supplier w " +
                 "JOIN address a ON w.address_id = a.id " +
-                "WHERE w.id = :warehouseId " +
+                "WHERE w.id = :supplierId " +
                 "LIMIT 1"
 )
 
 @Entity
-@Table(name = "warehouse")
+@Table(name = "supplier")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class Warehouse {
+public class Supplier {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

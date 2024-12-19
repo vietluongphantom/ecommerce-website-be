@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
                         @ColumnResult(name = "quantity", type = Integer.class),
                         @ColumnResult(name = "sku_code", type = String.class),
                         @ColumnResult(name = "name", type = String.class),
-                        @ColumnResult(name = "warehouse", type = String.class),
+                        @ColumnResult(name = "supplier", type = String.class),
                         @ColumnResult(name = "import_price", type = BigDecimal.class),
                         @ColumnResult(name = "created_at", type = LocalDateTime.class),
                         @ColumnResult(name = "product_id", type = Long.class),
@@ -37,20 +37,20 @@ import java.time.LocalDateTime;
                         @ColumnResult(name = "quantity", type = Integer.class),
                         @ColumnResult(name = "sku_code", type = String.class),
                         @ColumnResult(name = "name", type = String.class),
-                        @ColumnResult(name = "warehouse", type = String.class),
+                        @ColumnResult(name = "supplier", type = String.class),
                 }
         )
 )
 
 @NamedNativeQuery(
         name = "Inventory.getAllInventory",
-        query = "SELECT i.quantity, pi.sku_code, p.name, w.name AS warehouse " +
+        query = "SELECT i.quantity, pi.sku_code, p.name, w.name AS supplier " +
                 "FROM Inventory i " +
                 "INNER JOIN Product_item pi ON pi.id = i.product_item_id " +
-                "INNER JOIN Warehouse w ON w.id = i.warehouse_id " +
+                "INNER JOIN Supplier w ON w.id = i.supplier_id " +
                 "INNER JOIN Product p ON p.id = pi.product_Id " +
                 "WHERE w.shop_Id = :shop_id " +
-                "AND w.name LIKE CONCAT('%', :warehouse,'%') " +
+                "AND w.name LIKE CONCAT('%', :supplier,'%') " +
                 "AND pi.sku_code LIKE CONCAT('%',:sku_code,'%') " +
                 "AND p.name LIKE CONCAT('%',:name,'%') " +
                 "LIMIT :limit OFFSET :offSet",
@@ -59,10 +59,10 @@ import java.time.LocalDateTime;
 
 @NamedNativeQuery(
         name = "Inventory.getAllListInventoryData",
-        query = "SELECT i.id, i.quantity ,pi.sku_code , p.name, w.name AS warehouse,p.created_at ,pi.import_price , pi.price, p.id as product_id " +
+        query = "SELECT i.id, i.quantity ,pi.sku_code , p.name, w.name AS supplier,p.created_at ,pi.import_price , pi.price, p.id as product_id " +
                 "FROM Inventory i " +
                 "INNER JOIN Product_item pi ON pi.id = i.product_item_id " +
-                "INNER JOIN Warehouse w ON w.id = i.warehouse_id " +
+                "INNER JOIN Supplier w ON w.id = i.supplier_id " +
                 "INNER JOIN Product p ON p.id = pi.product_Id " +
                 "WHERE w.shop_Id = :shop_id ",
         resultSetMapping = "DetailInventoryDataMapping"
@@ -89,7 +89,7 @@ public class Inventory {
     @Column(name = "product_item_id", nullable = false)
     private Long productItemId;
 
-    @Column(name = "warehouse_id", nullable = false)
-    private Long warehouseId;
+    @Column(name = "supplier_id", nullable = false)
+    private Long supplierId;
 
 }

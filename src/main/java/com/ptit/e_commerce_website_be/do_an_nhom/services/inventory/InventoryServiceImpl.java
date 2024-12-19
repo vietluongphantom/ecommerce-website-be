@@ -69,18 +69,18 @@ public class InventoryServiceImpl implements InventoryService{
         productItemRepository.save(productItem);
         Supply supply = Supply.builder()
                 .quantity(detailInventoryDTO.getQuantity())
-                .warehouseId(detailInventoryDTO.getWarehouseId())
+                .supplierId(detailInventoryDTO.getSupplierId())
                 .productItemId(productItem.getId())
-                .supplier(detailInventoryDTO.getSupplier())
+//                .supplier(detailInventoryDTO.())
                 .location(detailInventoryDTO.getLocation())
                 .status(Boolean.TRUE)
                 .build();
         supplyRepository.save(supply);
 
-        Inventory inventory = inventoryRepository.findByProductItemIdAndWarehouseId(productItem.getId(), detailInventoryDTO.getWarehouseId());
+        Inventory inventory = inventoryRepository.findByProductItemIdAndWarehouseId(productItem.getId(), detailInventoryDTO.getSupplierId());
         if(inventory == null){
             Inventory newInventory = Inventory.builder()
-                    .warehouseId(detailInventoryDTO.getWarehouseId())
+                    .supplierId(detailInventoryDTO.getSupplierId())
                     .quantity(detailInventoryDTO.getQuantity())
                     .productItemId(productItem.getId())
                     .build();
@@ -95,18 +95,18 @@ public class InventoryServiceImpl implements InventoryService{
     }
 
     @Override
-    public Page<DetailInventoryDTO> getListImport(String warehouse,String supplier,String location,String skuCode,String name ,String createdAt, Long userId, Pageable pageable) {
+    public Page<DetailInventoryDTO> getListImport(String supplier,String location,String skuCode,String name ,String createdAt, Long userId, Pageable pageable) {
         Long shopId = sellerRepository.findShopIdByUserId(userId);
-        List<DetailInventoryDTO> detailInventoryDTOList = supplyRepository.getAllImport(warehouse,supplier,location,skuCode, name , createdAt,shopId, pageable.getPageSize(), pageable.getOffset());
-        int totalItems = supplyRepository.countAllImport(warehouse,supplier,location,skuCode, name , createdAt,shopId);
+        List<DetailInventoryDTO> detailInventoryDTOList = supplyRepository.getAllImport(supplier,location,skuCode, name , createdAt,shopId, pageable.getPageSize(), pageable.getOffset());
+        int totalItems = supplyRepository.countAllImport(supplier,location,skuCode, name , createdAt,shopId);
         return new PageImpl<>(detailInventoryDTOList, pageable, totalItems);
     }
 
     @Override
-    public Page<DetailInventoryDTO> getListExport(String warehouse, String  supplier,String location,String skuCode,String  name ,String createdAt, Long userId, Pageable pageable){
+    public Page<DetailInventoryDTO> getListExport( String  supplier,String location,String skuCode,String  name ,String createdAt, Long userId, Pageable pageable){
         Long shopId = sellerRepository.findShopIdByUserId(userId);
-        List<DetailInventoryDTO> detailInventoryDTOList = supplyRepository.getAllExport(warehouse,supplier,location,skuCode, name , createdAt,shopId, pageable.getPageSize(), pageable.getOffset());
-        int totalItems = supplyRepository.countAllExport(warehouse,supplier,location,skuCode, name , createdAt,shopId);
+        List<DetailInventoryDTO> detailInventoryDTOList = supplyRepository.getAllExport(supplier,location,skuCode, name , createdAt,shopId, pageable.getPageSize(), pageable.getOffset());
+        int totalItems = supplyRepository.countAllExport(supplier,location,skuCode, name , createdAt,shopId);
         return new PageImpl<>(detailInventoryDTOList, pageable, totalItems);
     }
 
@@ -162,7 +162,7 @@ public class InventoryServiceImpl implements InventoryService{
                 row1.createCell(3).setCellValue(p.getPrice().doubleValue());
                 row1.createCell(4).setCellValue(p.getImportPrice().doubleValue());
                 row1.createCell(5).setCellValue(p.getQuantity());
-                row1.createCell(6).setCellValue(p.getWarehouse());
+//                row1.createCell(6).setCellValue(p.getWarehouse());
                 row1.createCell(7).setCellValue(p.getCreateAt().format(formatter));
             }
 
@@ -204,8 +204,8 @@ public class InventoryServiceImpl implements InventoryService{
                 row1.createCell(4).setCellValue(p.getPrice().doubleValue());
                 row1.createCell(5).setCellValue(p.getImportPrice().doubleValue());
                 row1.createCell(6).setCellValue(p.getQuantity());
-                row1.createCell(7).setCellValue(p.getWarehouse());
-                row1.createCell(8).setCellValue(p.getSupplier());
+//                row1.createCell(7).setCellValue(p.getWarehouse());
+//                row1.createCell(8).setCellValue(p.getSupplier());
                 row1.createCell(9).setCellValue(p.getLocation());
                 row1.createCell(10).setCellValue(p.getCreateAt().format(formatter));
             }

@@ -1,7 +1,6 @@
 package com.ptit.e_commerce_website_be.do_an_nhom.services.seller;
 
 import com.ptit.e_commerce_website_be.do_an_nhom.exceptions.DataNotFoundException;
-import com.ptit.e_commerce_website_be.do_an_nhom.exceptions.UserAlreadyExistedException;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.*;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.*;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.enums.RoleEnum;
@@ -16,7 +15,7 @@ import com.ptit.e_commerce_website_be.do_an_nhom.models.response.LoginResponse;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.nio.file.AccessDeniedException;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -36,7 +35,7 @@ public class SellerServiceImpl implements SellerService{
     private final ProductRepository productRepository;
     private final ProductItemRepository productItemRepository;
     private final OrdersRepository ordersRepository;
-    private final WarehouseRepository warehouseRepository;
+    private final SupplierRepository warehouseRepository;
     private final VoucherRepository voucherRepository;
 
     @Override

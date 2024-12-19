@@ -10,7 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class DetailWarehouseDTO {
+public class DetailSupplierDTO {
     @NotBlank(message = "Title is required")
     @Size(min = 3, max = 200, message = "Name must be between 3 and 200 characters")
     private String name;
@@ -40,7 +40,7 @@ public class DetailWarehouseDTO {
     @Size(max = 255, message = "Address detail cannot be longer than 255 characters")
     private String addressDetail;
 
-    public DetailWarehouseDTO(String name, String country, String province, String district, String commune, String addressDetail) {
+    public DetailSupplierDTO(String name, String country, String province, String district, String commune, String addressDetail) {
         this.name = name;
         this.country = country;
         this.province = province;

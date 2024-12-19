@@ -20,8 +20,8 @@ public class InventoryDTO {
     private Long productItemId;
 
     @NotNull(message = "Warehouse ID is required")
-    @JsonProperty("warehouse_id")
-    private Long warehouseId;
+    @JsonProperty("supplier_id")
+    private Long supplierId;
 
     @JsonProperty("created_at")
     private LocalDateTime createdAt;

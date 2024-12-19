@@ -16,8 +16,8 @@ public interface InventoryService {
 
     DetailInventoryDTO importWarehouse(DetailInventoryDTO detailInventoryDTO,Long userId) ;
 
-    Page<DetailInventoryDTO> getListImport(String warehouse,String supplier,String location,String skuCode,String name ,String createdAt,Long userId, Pageable pageable);
-    Page<DetailInventoryDTO>  getListExport(String warehouse,String supplier,String location,String skuCode,String name ,String createdAt, Long userId, Pageable pageable);
+    Page<DetailInventoryDTO> getListImport(String supplier,String location,String skuCode,String name ,String createdAt,Long userId, Pageable pageable);
+    Page<DetailInventoryDTO>  getListExport(String supplier,String location,String skuCode,String name ,String createdAt, Long userId, Pageable pageable);
 
     ByteArrayInputStream getDataDownloaded(Long userId) throws IOException;
 

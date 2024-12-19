@@ -50,7 +50,7 @@ public class InventoryController {
     public CommonResult<Page<DetailInventoryDTO>> getListExport(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "",required = false) String warehouse,
+//            @RequestParam(defaultValue = "",required = false) String warehouse,
             @RequestParam(defaultValue = "",required = false) String supplier,
             @RequestParam(defaultValue = "",required = false) String location,
             @RequestParam(defaultValue = "",required = false) String skuCode,
@@ -59,7 +59,7 @@ public class InventoryController {
     ){
         Pageable pageable = PageRequest.of(page, size);
         User user  = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Page<DetailInventoryDTO>  listExportsPages = inventoryService.getListExport(warehouse,supplier,location,skuCode, name , createdAt,user.getId(), pageable);
+        Page<DetailInventoryDTO>  listExportsPages = inventoryService.getListExport(supplier,location,skuCode, name , createdAt,user.getId(), pageable);
         return  CommonResult.success(listExportsPages, "Get list export successfully");
     }
 
@@ -69,7 +69,6 @@ public class InventoryController {
     public CommonResult<Page<DetailInventoryDTO>> getListImport(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "",required = false) String warehouse,
             @RequestParam(defaultValue = "",required = false) String supplier,
             @RequestParam(defaultValue = "",required = false) String location,
             @RequestParam(defaultValue = "",required = false) String skuCode,
@@ -78,7 +77,7 @@ public class InventoryController {
     ){
         Pageable pageable = PageRequest.of(page, size);
         User user  = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Page<DetailInventoryDTO> listImportsPages = inventoryService.getListImport(warehouse,supplier,location,skuCode, name , createdAt, user.getId(), pageable);
+        Page<DetailInventoryDTO> listImportsPages = inventoryService.getListImport(supplier,location,skuCode, name , createdAt, user.getId(), pageable);
         return  CommonResult.success(listImportsPages , "Get list import successfully");
     }
 

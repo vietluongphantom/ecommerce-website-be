@@ -167,6 +167,13 @@ public class UserController {
             return CommonResult.forbidden("Failed to update user status: " + e.getMessage());
         }
     }
+
+    @GetMapping("/{id}")
+    public CommonResult<User> getAllUsers( @PathVariable("id") Long id) {
+        userService.getInforUser(id);
+        return CommonResult.success(userService.getInforUser(id), "Get user info successfully");
+    }
+
 //    @PutMapping("/{id}/status")
 //    public ResponseEntity<?> updateUserStatus(
 //            @PathVariable Long id,

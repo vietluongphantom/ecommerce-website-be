@@ -22,7 +22,7 @@ import java.time.LocalDateTime;
                         @ColumnResult(name = "name", type = String.class),
                         @ColumnResult(name = "supplier", type = String.class),
                         @ColumnResult(name = "import_price", type = BigDecimal.class),
-                        @ColumnResult(name = "warehouse", type = String.class),
+//                        @ColumnResult(name = "warehouse", type = String.class),
                         @ColumnResult(name = "location", type = String.class),
                         @ColumnResult(name = "created_at", type = LocalDateTime.class),
                         @ColumnResult(name = "is_delete", type = Boolean.class),
@@ -34,14 +34,14 @@ import java.time.LocalDateTime;
 
 @NamedNativeQuery(
         name = "Supply.getAllImport",
-        query = "SELECT s.id, s.quantity, pi.sku_code, p.name, s.supplier, pi.import_price, w.name AS warehouse, s.location, s.created_at , w.is_delete, pi.price " +
+        query = "SELECT s.id, s.quantity, pi.sku_code, p.name,  w.name AS supplier, pi.import_price, s.location, s.created_at , w.is_delete, pi.price " +
                 "FROM Supply s " +
                 "INNER JOIN Product_item pi ON pi.id = s.product_item_Id " +
-                "INNER JOIN Warehouse w ON w.id = s.warehouse_Id " +
+                "INNER JOIN Supplier w ON w.id = s.supplier_Id " +
                 "INNER JOIN Product p ON p.id = pi.product_Id " +
                 "WHERE s.status = 1 AND w.shop_Id = :shop_id " +
-                "AND w.name LIKE CONCAT('%', :warehouse,'%') " +
-                "AND s.supplier LIKE CONCAT('%',:supplier,'%') " +
+                "AND w.name LIKE CONCAT('%', :supplier,'%') " +
+//                "AND s.supplier LIKE CONCAT('%',:supplier,'%') " +
                 "AND s.location LIKE CONCAT('%',:location,'%') " +
                 "AND pi.sku_code LIKE CONCAT('%',:sku_code,'%') " +
                 "AND p.name LIKE CONCAT('%',:name,'%') " +
@@ -69,7 +69,7 @@ import java.time.LocalDateTime;
         query = "SELECT s.id, s.quantity, pi.sku_code, p.name, s.supplier, pi.import_price, w.name AS warehouse, s.location, s.created_at , w.is_delete, pi.price " +
                 "FROM Supply s " +
                 "INNER JOIN Product_item pi ON pi.id = s.product_item_Id " +
-                "INNER JOIN Warehouse w ON w.id = s.warehouse_Id " +
+                "INNER JOIN Supplier w ON w.id = s.supplier_Id " +
                 "INNER JOIN Product p ON p.id = pi.product_Id " +
                 "WHERE s.status = 1 AND w.shop_Id = :shop_id " +
                 "ORDER BY s.created_at ",
@@ -79,13 +79,13 @@ import java.time.LocalDateTime;
 
 @NamedNativeQuery(
         name = "Supply.getAllExport",
-        query = "SELECT s.id , s.quantity, pi.sku_code, p.name, s.supplier, pi.import_price, w.name AS warehouse, s.location , s.created_at, w.is_delete, pi.price " +
+        query = "SELECT s.id , s.quantity, pi.sku_code, p.name, w.name AS supplier, pi.import_price, s.location , s.created_at, w.is_delete, pi.price " +
                 "FROM Supply s " +
                 "INNER JOIN Product_item pi ON pi.id = s.product_item_Id " +
-                "INNER JOIN Warehouse w ON w.id = s.warehouse_Id " +
+                "INNER JOIN Supplier w ON w.id = s.supplier_Id " +
                 "INNER JOIN Product p ON p.id = pi.product_Id " +
                 "WHERE  s.status = 0 AND w.shop_Id = :shop_id " +
-                "AND w.name LIKE CONCAT('%', :warehouse,'%') " +
+//                "AND w.name LIKE CONCAT('%', :warehouse,'%') " +
                 "AND s.supplier LIKE CONCAT('%',:supplier,'%') " +
                 "AND s.location LIKE CONCAT('%',:location,'%') " +
                 "AND pi.sku_code LIKE CONCAT('%',:sku_code,'%') " +
@@ -119,14 +119,14 @@ public class Supply {
 
     private int quantity;
 
-    @Column(name = "warehouse_id", nullable = false)
-    private Long warehouseId;
+    @Column(name = "supplier_id", nullable = false)
+    private Long supplierId;
 
     @Column(name = "product_item_id", nullable = false)
     private Long productItemId;
 
-    @Column(name = "supplier")
-    private String supplier;
+//    @Column(name = "supplier")
+//    private String supplier;
 
     @Column(name = "location")
     private  String location;

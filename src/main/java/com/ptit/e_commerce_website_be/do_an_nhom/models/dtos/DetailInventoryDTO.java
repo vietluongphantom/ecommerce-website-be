@@ -31,18 +31,19 @@ public class DetailInventoryDTO {
     @JsonProperty("name")
     private String name;
 
-    private String warehouse;
+//    @NotBlank(message = "warehouse is required")
+//    private String warehouse;
 
-    @NotBlank(message = "Supplier is required")
+
     private String supplier;
 
     @JsonProperty("create_at")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS")
     private LocalDateTime createAt;
 
-    @JsonProperty("warehouse_id")
-    @NotNull(message = "Warehouse id is required")
-    private Long warehouseId;
+    @JsonProperty("supplier_id")
+    @NotNull(message = "supplier_id is required")
+    private Long supplierId;
 
     @NotBlank(message = "location is required")
     private String location;
@@ -58,20 +59,21 @@ public class DetailInventoryDTO {
 
     @JsonProperty("price")
     private BigDecimal price;
-    public DetailInventoryDTO( Integer quantity, String skuCode, String name, String warehouse) {
+    public DetailInventoryDTO( Integer quantity, String skuCode, String name, String supplier) {
         this.quantity = quantity;
         this.skuCode = skuCode;
         this.name = name;
-        this.warehouse = warehouse;
+        this.supplier = supplier;
     }
     //inventory
-    public DetailInventoryDTO(Long id, Integer quantity, String skuCode, String name, String warehouse,
+    public DetailInventoryDTO(Long id, Integer quantity, String skuCode, String name, String supplier,
                               BigDecimal importPrice, LocalDateTime createAt, Long productId , BigDecimal price) {
         this.id = id;
         this.quantity = quantity;
         this.skuCode = skuCode;
         this.name = name;
-        this.warehouse = warehouse;
+        this.supplier = supplier;
+//        this.warehouse = warehouse;
         this.importPrice = importPrice;
         this.createAt = createAt;
         this.productId = productId;
@@ -80,7 +82,7 @@ public class DetailInventoryDTO {
 
     // supply
     public DetailInventoryDTO(Long id, Integer quantity, String skuCode, String name, String supplier, BigDecimal importPrice,
-                              String warehouse, String location, LocalDateTime createAt, Boolean isDelete,
+                              String location, LocalDateTime createAt, Boolean isDelete,
                               BigDecimal price) {
         this.id = id;
         this.quantity = quantity;
@@ -88,12 +90,12 @@ public class DetailInventoryDTO {
         this.name = name;
         this.supplier = supplier;
         this.importPrice = importPrice;
-        this.warehouse = warehouse;
+//        this.warehouse = warehouse;
         this.location = location;
         this.createAt = createAt;
         this.isDelete = isDelete;
         this.price = price;
-//        this.productId = productId;
+        this.productId = productId;
     }
 
 }
