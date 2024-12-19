@@ -3,6 +3,7 @@ package com.ptit.e_commerce_website_be.do_an_nhom.controllers;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.RevenueAndProfitResponse;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.Shop;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.User;
+
 import com.ptit.e_commerce_website_be.do_an_nhom.repositories.ShopRepository;
 import com.ptit.e_commerce_website_be.do_an_nhom.services.OrdersService;
 import com.ptit.e_commerce_website_be.do_an_nhom.services.ProfitCalculationService;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,7 +32,13 @@ public class StatisticsController {
 
     @Autowired
     private StatisticsService statisticsService;
+
+    @Autowired
+    private ProfitCalculationService profitCalculationService;
+
+    @Autowired
     private ShopRepository shopRepository;
+
 
     public StatisticsController(ProfitCalculationService profitCalculationService) {
         this.profitCalculationService = profitCalculationService;
@@ -62,17 +70,49 @@ public class StatisticsController {
 //        return ResponseEntity.ok(statisticsService.getMonthlyRevenue(year));
 //    }
 
+//    @GetMapping("/revenue/monthly")
+//    public ResponseEntity<List<Map<String, Object>>> getMonthlyRevenue(
+//            @RequestParam int year,
+//            @RequestParam(required = false) Long shopId) {
+//
+//        if (shopId != null) {
+//            return ResponseEntity.ok(statisticsService.getMonthlyRevenueByShop(year, shopId));
+//        }
+//
+//        return ResponseEntity.ok(statisticsService.getMonthlyRevenue(year));
+//    }
+
     @GetMapping("/revenue/monthly")
     public ResponseEntity<List<Map<String, Object>>> getMonthlyRevenue(
-            @RequestParam int year,
-            @RequestParam(required = false) Long shopId) {
-
-        if (shopId != null) {
-            return ResponseEntity.ok(statisticsService.getMonthlyRevenueByShop(year, shopId));
-        }
-
+            @RequestParam int year) {
         return ResponseEntity.ok(statisticsService.getMonthlyRevenue(year));
     }
+
+//    @GetMapping("/revenue/monthlyByShop")
+//    public ResponseEntity<List<Map<String, Object>>> getMonthlyRevenueByShop(
+//            @RequestParam int year,
+//            @RequestParam Long shopId) {
+//        return ResponseEntity.ok(statisticsService.getMonthlyRevenueByShop(year, shopId));
+//    }
+
+    @GetMapping("/revenue/monthlyByShop")
+    public ResponseEntity<List<Map<String, Object>>> getMonthlyRevenueByShop(
+            @RequestParam int year,
+            @RequestParam(value = "shopId", required = false) Long shopId) {
+
+        // Nếu shopId không được truyền, lấy từ SecurityContextHolder
+        if (shopId == null) {
+            User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            Shop shop = shopRepository.findByUserId(user.getId());
+            if (shop == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+            shopId = shop.getId();
+        }
+
+        return ResponseEntity.ok(statisticsService.getMonthlyRevenueByShop(year, shopId));
+    }
+
 
     /////
     @GetMapping("/orders")
@@ -93,31 +133,53 @@ public class StatisticsController {
 //        return ResponseEntity.ok(counts);
 //    }
 
+//    @GetMapping("/ordersByShop")
+//    public ResponseEntity<Map<String, Long>> getOrderStatusCounts(@RequestParam("shopID") Long shopId) {
+//        Map<String, Long> counts = ordersService.getOrderCountsByShopId(shopId);
+//        return ResponseEntity.ok(counts);
+//    }
+
+
     @GetMapping("/ordersByShop")
-    public ResponseEntity<Map<String, Long>> getOrderStatusCounts(@RequestParam("shopID") Long shopId) {
+    public ResponseEntity<Map<String, Long>> getOrderStatusCounts(
+            @RequestParam(value = "shopID", required = false) Long shopId,
+            @AuthenticationPrincipal User user) {
+
+        // Nếu shopId không được truyền, lấy từ đối tượng user
+        if (shopId == null) {
+            Shop shop = shopRepository.findByUserId(user.getId());
+            if (shop == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+            shopId = shop.getId();
+        }
+
         Map<String, Long> counts = ordersService.getOrderCountsByShopId(shopId);
         return ResponseEntity.ok(counts);
     }
 
 
-//    @GetMapping("/ordersByShop")
-//    public ResponseEntity<Map<String, Long>> getOrderStatusCounts() {
-//        // Lấy thông tin user từ SecurityContextHolder
-//        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-//
-//        // Lấy thông tin shopId từ userId thông qua repository
-//        Shop shopOpt = shopRepository.findByUserId(user.getId());
-//        if (shopOpt != null) {
-//            Long shopId = shopOpt.getId();
-//
-//            // Gọi service logic với shopId
-//            Map<String, Long> counts = ordersService.getOrderCountsByShopId(shopId);
-//            return ResponseEntity.ok(counts);
-//        } else {
-//            // Trả về 404 nếu không tìm thấy shop
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyMap());
-//        }
-//    }
+
+    @GetMapping("/profitByShop")
+    public ResponseEntity<RevenueAndProfitResponse> calculateRevenueAndProfitByShop(
+            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
+            @RequestParam(value = "shopId", required = false) Long shopId) {
+
+        // Nếu shopId không được truyền, lấy từ SecurityContextHolder
+        if (shopId == null) {
+            User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            Shop shop = shopRepository.findByUserId(user.getId());
+            if (shop == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+            shopId = shop.getId();
+        }
+
+        RevenueAndProfitResponse response = profitCalculationService.calculateRevenueAndProfitByShop(startDate, endDate, shopId);
+        return ResponseEntity.ok(response);
+    }
+
 
 
 
@@ -137,7 +199,7 @@ public class StatisticsController {
         return ResponseEntity.ok(statisticsService.getDailyRevenueByShop(month, year, shopId));
     }
 
-    private final ProfitCalculationService profitCalculationService;
+//    private final ProfitCalculationService profitCalculationService;
 
     @GetMapping("/profit")
     public ResponseEntity<RevenueAndProfitResponse> calculateRevenueAndProfit(
@@ -157,36 +219,16 @@ public class StatisticsController {
 //        return CommonResult.success(user.getId(), "Get current userID successfully");
 //    }
 
-    @GetMapping("/profitByShop")
-    public ResponseEntity<RevenueAndProfitResponse> calculateRevenueAndProfitByShop(
-            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
-            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
-            @RequestParam("shopId") Long shopId) {
-
-        RevenueAndProfitResponse response = profitCalculationService.calculateRevenueAndProfitByShop(startDate, endDate, shopId);
-        return ResponseEntity.ok(response);
-    }
-
-
 //    @GetMapping("/profitByShop")
 //    public ResponseEntity<RevenueAndProfitResponse> calculateRevenueAndProfitByShop(
 //            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
-//            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
+//            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
+//            @RequestParam("shopId") Long shopId) {
 //
-//        // Lấy thông tin người dùng hiện tại từ SecurityContextHolder
-//        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-//
-//        // Lấy thông tin shopId từ repository
-//        Shop shopOpt = shopRepository.findByUserId(user.getId());
-//        if (shopOpt != null) {
-//            Long shopId = shopOpt.getId();
-//
-//            // Gọi service để tính toán lợi nhuận và doanh thu
-//            RevenueAndProfitResponse response = profitCalculationService.calculateRevenueAndProfitByShop(startDate, endDate, shopId);
-//            return ResponseEntity.ok(response);
-//        } else {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-//        }
+//        RevenueAndProfitResponse response = profitCalculationService.calculateRevenueAndProfitByShop(startDate, endDate, shopId);
+//        return ResponseEntity.ok(response);
 //    }
+
+
 
 }
