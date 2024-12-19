@@ -87,6 +87,14 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Long getQuantityByShopId(Long shopId);
 
 
+    @Query("SELECT p FROM Product p " +
+            "JOIN ProductItem pi ON p.id = pi.productId " +
+            "LEFT JOIN ProductAttributes pa ON pa.productId = p.id " +
+            "WHERE pi.quantity > 0 AND (p.isDelete = false OR p.isDelete IS NULL) " +
+            "AND (pi.isDelete = false OR pi.isDelete IS NULL)")
+    List<Product> findAllAvailableProductsWithAttributes();
+
+
 //    @Query("SELECT  FROM Product p WHERE p.shopId = ?1")
 //    Product findProductByProductItemId(Long id);
 

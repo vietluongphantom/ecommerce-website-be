@@ -48,7 +48,7 @@ public class ProductServiceImpl implements IProductService {
     private final CategoryProductRepository categoryProductRepository ;
     private final ShopRepository shopRepository;
     private final BrandRepository brandRepository;
-
+    private final RateRepository rateRepository;
     private final ImagesRepository imagesRepository;
     private final ProductAttributesRepository productAttributesRepository;
     private final AttributeValuesRepository attributeValuesRepository;
@@ -133,7 +133,7 @@ public class ProductServiceImpl implements IProductService {
                             .map(Category::getName)
                             .collect(Collectors.toList());
 
-
+                    Rate rate = rateRepository.findByProductId(product.getId());
                     // Xử lý Optional Brand để tránh NoSuchElementException
                     Optional<Brand> brand = brandRepository.findById(product.getBrandId());
                     List<String> imageList = imagesRepository.findLinkByProductId(product.getId());
@@ -146,10 +146,10 @@ public class ProductServiceImpl implements IProductService {
                             .minPrice(product.getMinPrice())
                             .totalSold(product.getTotalSold())
                             .thumbnail(product.getThumbnail())
-
+                            .averageRate(rate == null? BigDecimal.valueOf(0):rate.getAverageStars())
                             .brandId(brand.get().getId())
                             .brandName(brand.get().getName())
-
+                            .quantityRate(rate==null?0:rate.getQuantity())
                             .images(imageList)
                             .categoryNames(categoryNames)
                             .categories(product.getCategoryList())
@@ -178,7 +178,7 @@ public class ProductServiceImpl implements IProductService {
                             .map(Category::getName)
                             .collect(Collectors.toList());
 
-
+                    Rate rate = rateRepository.findByProductId(product.getId());
                     // Xử lý Optional Brand để tránh NoSuchElementException
                     Optional<Brand> brand = brandRepository.findById(product.getBrandId());
                     List<String> imageList = imagesRepository.findLinkByProductId(product.getId());
@@ -190,10 +190,10 @@ public class ProductServiceImpl implements IProductService {
                             .totalSold(product.getTotalSold())
                             .description(product.getDescription())
                             .thumbnail(product.getThumbnail())
-
+                            .averageRate(rate == null? BigDecimal.valueOf(0):rate.getAverageStars())
                             .brandId(brand.get().getId())
                             .brandName(brand.get().getName())
-
+                            .quantityRate(rate==null?0:rate.getQuantity())
                             .images(imageList)
                             .categoryNames(categoryNames)
                             .categories(product.getCategoryList())
@@ -302,6 +302,7 @@ public class ProductServiceImpl implements IProductService {
     public ProductResponse getProductById(Long id){
         Product product = productsRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("product not found"));
+        Rate rate = rateRepository.findByProductId(id);
         Shop shop = shopRepository.findById(product.getShopId()).get();
         Optional<Brand> brand = brandRepository.findById(product.getBrandId());
         List<String> imageList = imagesRepository.findLinkByProductId(product.getId());
@@ -325,11 +326,12 @@ public class ProductServiceImpl implements IProductService {
                 .minPrice(product.getMinPrice())
                 .description(product.getDescription())
                 .thumbnail(product.getThumbnail())
+                .averageRate(rate == null? BigDecimal.valueOf(0):rate.getAverageStars())
                 .Shop(shop)
                 .brandId(brand.get().getId())
                 .images(imageList)
                 .brandName(brand.get().getName())
-
+                .quantityRate(rate==null?0:rate.getQuantity())
                 .categories(product.getCategoryList())
                 .createdAt(product.getCreatedAt())
                 .modifiedAt(product.getModifiedAt())

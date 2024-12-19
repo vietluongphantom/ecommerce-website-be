@@ -2,6 +2,7 @@ package com.ptit.e_commerce_website_be.do_an_nhom.repositories;
 
 
 import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.DetailProductItemDTO;
+import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.Product;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.ProductItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -74,5 +75,12 @@ public interface ProductItemRepository extends JpaRepository<ProductItem, Long> 
 
     @Query("SELECT pi FROM ProductItem pi LEFT JOIN Product p ON p.shopId = ?2 WHERE pi.productId = ?1 AND pi.isDelete = false")
     List<ProductItem> getListProductItemByProductId(Long productId, Long shopId);
+
+    @Query("SELECT pi FROM ProductItem pi WHERE pi.id IN :productItemIds")
+    List<ProductItem> findByProductItemIds(@Param("productItemIds") List<Long> productItemIds);
+
+    @Query(value = "SELECT p.shop_id FROM product_item pi JOIN product p ON pi.product_id = p.id WHERE pi.id = :productItemId", nativeQuery = true)
+    Long findShopIdByProductItemId2(@Param("productItemId") Long productItemId);
+
 }
 
