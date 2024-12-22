@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @NamedNativeQuery(
         name = "Seller.getDetailSellerInfo",
         resultSetMapping = "DetailSellerInfoMapping",
-        query = "SELECT s.tax, s.cccd, u.email, u.gender  ,  u.full_name, u.phone, a.country, a.province, a.district, a.commune, a.address_detail " +
+        query = "SELECT s.tax, s.cccd, u.email, u.gender  ,  u.full_name, u.phone, a.country, a.province, a.district, a.commune, a.address_detail, u.avatar " +
                 "FROM seller s " +
                 "JOIN users u ON s.user_id = u.id " +
                 "LEFT JOIN address a ON a.user_id = u.id " +
@@ -36,7 +36,8 @@ import java.time.LocalDateTime;
                         @ColumnResult(name = "province", type = String.class),
                         @ColumnResult(name = "district", type = String.class),
                         @ColumnResult(name = "commune", type = String.class),
-                        @ColumnResult(name = "address_detail", type = String.class)
+                        @ColumnResult(name = "address_detail", type = String.class),
+                        @ColumnResult(name = "avatar", type = String.class),
                 }
         )
 )
@@ -70,8 +71,6 @@ public class  Seller {
 
     @Column(name = "user_id", nullable = false)
     private Long userId;
-
-
 
     @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;

@@ -24,7 +24,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class ProductResponse {
+public class  ProductResponse {
 
     @JsonProperty("id")
     private Long id;
@@ -63,6 +63,8 @@ public class ProductResponse {
 
     @JsonProperty("average_rate")
     private BigDecimal averageRate;
+
+    private String avatar;
 
     @JsonProperty("created_at")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS")

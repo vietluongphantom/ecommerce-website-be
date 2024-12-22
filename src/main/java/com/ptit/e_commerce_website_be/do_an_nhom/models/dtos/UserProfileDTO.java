@@ -46,6 +46,8 @@ public class UserProfileDTO {
     @NotBlank(message = "Commune is required")
     private String commune;
 
+    private String avatar;
+
     @JsonProperty("address_detail")
     @NotBlank(message = "Address detail is required")
     private String addressDetail;

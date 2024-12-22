@@ -88,4 +88,7 @@ public class User implements UserDetails {
     public String getUsername() {
         return email;
     }
+
+    @Column(nullable = false)
+    private String avatar;
 }

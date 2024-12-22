@@ -37,13 +37,14 @@ public class Brand {
 
     @Column(name = "status")
     private boolean status;
-
-
 //    @Column(name = "shop_id", nullable = false)
 //    private Long shopId;
 
     @Column(name = "is_delete")
     private Boolean isDelete;
+
+    @Column(name = "icon")
+    private String icon;
 
     @PrePersist
     protected void onCreate() {

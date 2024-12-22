@@ -118,6 +118,7 @@ public class SellerServiceImpl implements SellerService{
         seller.setCccd(detailSellerInfoDTO.getCccd());
         user.setFullName(detailSellerInfoDTO.getFullName());
         user.setPhone(detailSellerInfoDTO.getPhone());
+        user.setAvatar(detailSellerInfoDTO.getAvatar());
         user.setGender(detailSellerInfoDTO.getGender());
         address.setAddressDetail(detailSellerInfoDTO.getAddressDetail());
         address.setCommune(detailSellerInfoDTO.getCommune());
