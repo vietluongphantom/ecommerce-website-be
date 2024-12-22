@@ -35,6 +35,12 @@ public class OrderStatusHistory {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
+    @Column(name = "message", nullable = false)
+    private String message;
+
+    @Column(name = "is_read", nullable = false)
+    private Boolean isRead;
+
     @PrePersist
     protected void onCreate() {
         changedAt = LocalDateTime.now();

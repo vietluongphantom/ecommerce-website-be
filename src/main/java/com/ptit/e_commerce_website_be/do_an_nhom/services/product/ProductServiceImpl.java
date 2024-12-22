@@ -52,6 +52,7 @@ public class ProductServiceImpl implements IProductService {
     private final ImagesRepository imagesRepository;
     private final ProductAttributesRepository productAttributesRepository;
     private final AttributeValuesRepository attributeValuesRepository;
+    private final UserRepository userRepository;
 
     public List<Product> findAll() {
         return productsRepository.findAll();
@@ -302,6 +303,7 @@ public class ProductServiceImpl implements IProductService {
     public ProductResponse getProductById(Long id){
         Product product = productsRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("product not found"));
+//        User user = userRepository.finByShopId()
         Rate rate = rateRepository.findByProductId(id);
         Shop shop = shopRepository.findById(product.getShopId()).get();
         Optional<Brand> brand = brandRepository.findById(product.getBrandId());

@@ -26,10 +26,13 @@ public class BrandServiceImpl implements IBrandService {
     @Override
     @Transactional
     public Brand createBrand(BrandDTO brandDTO, Long userId) {
+
         Brand newBrand = Brand
                 .builder()
                 .isDelete(Boolean.FALSE)
+                .description(brandDTO.getDescription())
                 .name(brandDTO.getName())
+                .icon(brandDTO.getIcon())
                 .status(brandDTO.getStatus())
                 .build();
         return brandRepository.save(newBrand);

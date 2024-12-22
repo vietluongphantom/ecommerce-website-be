@@ -64,9 +64,11 @@ public class DetailSellerInfoDTO {
     @Size(max = 255, message = "Address detail cannot be longer than 255 characters")
     private String addressDetail;
 
+    private String avatar;
+
     public DetailSellerInfoDTO(String tax, String cccd, String email, String gender, String fullName, String phone,
                                String country, String province, String district,
-                               String commune, String addressDetail) {
+                               String commune, String addressDetail, String avatar) {
         this.tax = tax;
         this.cccd = cccd;
         this.email = email;
@@ -78,6 +80,7 @@ public class DetailSellerInfoDTO {
         this.district = district;
         this.commune = commune;
         this.addressDetail = addressDetail;
+        this.avatar = avatar;
     }
 
 }

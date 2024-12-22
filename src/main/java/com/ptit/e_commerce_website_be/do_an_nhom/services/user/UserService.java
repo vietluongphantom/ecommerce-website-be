@@ -48,4 +48,6 @@ public interface UserService {
     String sendOtpForForgotPasswordRequest(String email);
 
     void updateUserStatus(Long userId, Boolean status);
+
+    User getInforUser(Long id);
 }

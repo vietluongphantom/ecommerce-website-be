@@ -335,6 +335,7 @@ public class UserServiceImpl implements UserService{
                 .fullName(user.getFullName())
                 .phone(user.getPhone())
                 .gender(user.getGender())
+                .avatar(user.getAvatar())
                 .country(address.getCountry())
                 .province(address.getProvince())
                 .district(address.getDistrict())
@@ -350,6 +351,7 @@ public class UserServiceImpl implements UserService{
         User currentUser = getAuthenticatedUser();
         currentUser.setFullName(userProfileDTO.getFullName());
         currentUser.setPhone(userProfileDTO.getPhone());
+        currentUser.setAvatar(userProfileDTO.getAvatar());
         currentUser.setGender(userProfileDTO.getGender());
 
         Address address = Address.builder()
@@ -464,5 +466,8 @@ public class UserServiceImpl implements UserService{
         userRepository.save(user);
     }
 
-
+    @Override
+    public User getInforUser(Long id) {
+        return userRepository.findById(id).get();
+    }
 }
