@@ -89,6 +89,6 @@ public class User implements UserDetails {
         return email;
     }
 
-    @Column(nullable = false)
+//    @Column(nullable = false)
     private String avatar;
 }

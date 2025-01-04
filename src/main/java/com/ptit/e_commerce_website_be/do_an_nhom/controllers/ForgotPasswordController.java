@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/forgotPassword")
+@RequestMapping("/api/forgotPassword")
 @RequiredArgsConstructor
 public class ForgotPasswordController {
 
@@ -43,6 +43,12 @@ public class ForgotPasswordController {
         return otpService.resendOtpForForgotPassword(email);
     }
 
+    @PostMapping("/sendOtp")
+    public CommonResult<String> sendOtp(@RequestBody Map<String, String> requestBody) {
+        String email = requestBody.get("email");
+        return otpService.resendOtpForForgotPassword(email);
+    }
+
     @PostMapping("/changePassword")
     public CommonResult<String> changePassword(@RequestBody Map<String, String> requestBody) {
         String email = requestBody.get("email");
@@ -58,7 +64,7 @@ public class ForgotPasswordController {
 
     @PostMapping("/verifyOtp/{otp}/{email}")
     public ResponseEntity<String> verifyOtp(@PathVariable Integer otp, @PathVariable String email) {
-        return otpService.verifyOtp(otp, email);
+        return otpService.verifyOtpForgotPassword(otp, email);
     }
 
     @PostMapping("/changePassword/{email}")
