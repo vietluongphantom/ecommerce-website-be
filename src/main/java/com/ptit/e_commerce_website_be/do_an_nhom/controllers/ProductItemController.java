@@ -27,11 +27,25 @@ public class ProductItemController {
 
     @PostMapping
     @PreAuthorize("hasRole('ROLE_SELLER')")
-    public CommonResult<DetailProductItemDTO> createProductItem(
+//    public CommonResult<DetailProductItemDTO> createProductItem(
+//            @Valid @RequestBody DetailProductItemDTO detailProductItemDTO
+//    ){
+//        User user  = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//        return CommonResult.success(productItemService.createProductItem(detailProductItemDTO, user.getId()), "create product item successfully");
+//    }
+
+    public CommonResult createProductItem(
             @Valid @RequestBody DetailProductItemDTO detailProductItemDTO
     ){
         User user  = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return CommonResult.success(productItemService.createProductItem(detailProductItemDTO, user.getId()), "create product item successfully");
+        DetailProductItemDTO result = productItemService.createProductItem(detailProductItemDTO, user.getId());
+
+        if (result == null) {
+            // Trả về kết quả lỗi nếu không có giá trị trả về
+            return CommonResult.error(400, "Product item creation failed. No result returned.");
+        }
+
+        return CommonResult.success(result, "Create product item successfully");
     }
 
     @GetMapping("/list-sku/{id}")

@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.Objects;
+import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -121,20 +122,23 @@ public class OtpService {
         }
     }
 
+
+
+
     public CommonResult<String> resendOtpForForgotPassword(String email) {
         try {
             int otp = redisOtpService.generateAndSaveOtp(email);
 
             MailBody mailBody = MailBody.builder()
                     .to(email)
-                    .text("This is the OTP for your Forgot Password request: " + otp)
-                    .subject("OTP for Forgot Password request")
+                    .text("Đây là mã OTP cho yêu cầu quên mật khẩu của bạn: " + otp)
+                    .subject("Mã OTP cho yêu cầu quên mật khẩu")
                     .build();
 
             emailService.sendSimpleMessage(mailBody);
-            return CommonResult.success("OTP has been resent!");
+            return CommonResult.success("Mã OTP đã được gửi!");
         } catch (RuntimeException e) {
-            return CommonResult.tooManyRequests("Too many OTP requests. Please wait before trying again.");
+            return CommonResult.tooManyRequests("Bạn đã gửi quá nhiều yêu cầu gửi OTP. Vui lòng đợi 1p trước khi thử lại.");
         }
     }
 
@@ -165,6 +169,31 @@ public class OtpService {
         userRepository.updatePassword(user.getEmail(), encodedPassword);
 
         return CommonResult.success("Password has been changed!");
+    }
+
+    private void sendPassword(String email) {
+        Random random = new Random();
+        int newPassword = random.nextInt(900000) + 100000;
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Vui lòng cung cấp một email hợp lệ!"));
+        String encodedPassword = passwordEncoder.encode(String.valueOf(newPassword));
+        userRepository.updatePassword(user.getEmail(), encodedPassword);
+        MailBody mailBody = MailBody.builder()
+                .to(email)
+                .text("Đây là mật khẩu mới cho tài khoản của bạn:"+ newPassword)
+                .subject("Mật khẩu mới cho yêu cầu quên mật khẩu của bạn")
+                .build();
+
+        emailService.sendSimpleMessage(mailBody);
+    }
+
+    public ResponseEntity<String> verifyOtpForgotPassword(Integer otp, String email) {
+        boolean isValid = redisOtpService.verifyOtp(email, otp);
+        sendPassword(email);
+        if (isValid) {
+            return ResponseEntity.ok("OTP verified!");
+        }
+        return new ResponseEntity<>("Invalid or expired OTP!", HttpStatus.BAD_REQUEST);
     }
 }
 

@@ -17,7 +17,7 @@ import java.util.Optional;
 public interface ProductItemRepository extends JpaRepository<ProductItem, Long> {
 
 
-    @Query("SELECT pi FROM ProductItem pi WHERE pi.skuCode = ?1 AND pi.productId = ?2 ")
+    @Query("SELECT pi FROM ProductItem pi WHERE pi.skuCode = ?1 AND pi.productId = ?2 AND pi.isDelete = false ")
     ProductItem findBySkuCode(String skuCode, Long productId);
 
     @Query(name = "ProductItem.GetAllProductItemByProductId", nativeQuery = true)
