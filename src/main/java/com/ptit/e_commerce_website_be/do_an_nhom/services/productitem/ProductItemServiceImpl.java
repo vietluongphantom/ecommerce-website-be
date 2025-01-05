@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -244,19 +245,44 @@ public class ProductItemServiceImpl implements ProductItemService
     }
 
     @Override
-    public Map<String, Object> getProductItemByAttributesValues(Long id, List<Long> valuesIds){
+    public Map<String, Object> getProductItemByAttributesValues(Long id, List<Long> valuesIds) {
         int valuesCount = valuesIds.size();
         Long sumQuantity = productItemRepository.sumQuantity(id, valuesIds, valuesCount);
+        sumQuantity = (sumQuantity != null) ? sumQuantity : 0;
+
         int attributeCount = productAttributesRepository.findAllByProductId(id).size();
         List<ProductItem> productItemList = new ArrayList<>();
-        if(attributeCount ==valuesCount  ) {
+        if (attributeCount == valuesCount) {
             productItemList = productItemRepository.findProductItemByAttributesValues(id, valuesIds, valuesCount);
         }
+
+        // Gán giá trị mặc định nếu danh sách productItemList trống
+        if (productItemList.isEmpty()) {
+            ProductItem defaultItem = new ProductItem();
+            defaultItem.setId(0L);
+            defaultItem.setPrice(BigDecimal.valueOf(-1));
+            defaultItem.setQuantity(0);
+            defaultItem.setSalePrice(null);
+            defaultItem.setProductId(0L);
+            defaultItem.setSkuCode("0");
+            defaultItem.setIsDelete(false);
+            defaultItem.setImportPrice(BigDecimal.valueOf(0));
+            defaultItem.setTotalSold(null);
+
+            productItemList.add(defaultItem);
+        }
+
         Map<String, Object> result = new HashMap<>();
-        result.put("product_item",productItemList);
+        result.put("product_item", productItemList);
         result.put("quantity", sumQuantity);
+        for (ProductItem productItem : productItemList) {
+            if (productItem.getQuantity() == 0) {
+                productItem.setPrice(BigDecimal.valueOf(-1));
+            }
+        }
         return result;
     }
+
 
     @Override
     public List<ProductItem> getListProductItemByProductId(Long productId, Long userId){

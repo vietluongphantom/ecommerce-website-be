@@ -25,6 +25,9 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,64 +53,75 @@ public class OrdersController {
     private final OrdersService ordersService;
     private final OrdersRepository ordersRepository;
 
-    @GetMapping
-    public CommonResult<List<OrdersDTO>> getAllOrders(){
-        User user  = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        List<OrdersDTO> orders = iOrdersService.findAll(user.getId()).stream().map(orderMapper::toDto).collect(Collectors.toList());
-        return CommonResult.success(orders, "Get all orders successfully");
 
+
+    @GetMapping
+    public CommonResult<Page<OrdersDTO>> getAllOrders(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) Long id
+    ) {
+        // Lấy thông tin user từ SecurityContext
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        // Tạo PageRequest để phân trang và sắp xếp
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by("id").descending());
+
+        // Lấy danh sách orders từ service
+        Page<Orders> ordersPage = iOrdersService.findByShopIdAndId(user.getId(), pageRequest, id);
+
+        // Chuyển đổi Page<Orders> thành Page<OrdersDTO>
+        Page<OrdersDTO> ordersDTOPage = ordersPage.map(orderMapper::toDto);
+
+        // Trả về kết quả
+        return CommonResult.success(ordersDTOPage, "Get orders successfully");
     }
 
-//    @GetMapping("/{id}")
-//    public CommonResult<OrdersDTO> getOrderById(@PathVariable Long id) {
-//        return iOrdersService.findById(id)
-//                .map(order -> CommonResult.success(orderMapper.toDto(order), "Get order successfully"))
-//                .orElse(CommonResult.error(404, "Order not found"));
-//    }
 
-//
-@GetMapping("/{id}")
-public CommonResult<OrdersDTO> getOrderById(@PathVariable Long id) {
-    return iOrdersService.findById(id)
-            .map(order -> {
-                // Lấy danh sách OrderItem từ OrderItemRepository
-                List<OrderItem> orderItems = iOrdersService.getOrderItems(order.getId());
 
-                // Chuyển danh sách OrderItem sang OrderItemDTO
-                List<OrderItemDTO> orderItemDTOs = OrderItemMapper.toDtoList(orderItems);
+    @GetMapping("/{id}")
+    public CommonResult<OrdersDTO> getOrderById(@PathVariable Long id) {
+        return iOrdersService.findById(id)
+                .map(order -> {
+                    // Lấy danh sách OrderItem từ OrderItemRepository
+                    List<OrderItem> orderItems = iOrdersService.getOrderItems(order.getId());
 
-                // Chuyển đổi Orders sang OrdersDTO
-                OrdersDTO orderDto = orderMapper.toDto(order);
-                orderDto.setOrderItems(orderItemDTOs); // Gắn danh sách OrderItemDTO vào OrdersDTO
+                    // Chuyển danh sách OrderItem sang OrderItemDTO
+                    List<OrderItemDTO> orderItemDTOs = OrderItemMapper.toDtoList(orderItems);
 
-                return CommonResult.success(orderDto, "Get order successfully");
-            })
-            .orElse(CommonResult.error(404, "Order not found"));
-}
+                    // Chuyển đổi Orders sang OrdersDTO
+                    OrdersDTO orderDto = orderMapper.toDto(order);
+                    orderDto.setOrderItems(orderItemDTOs); // Gắn danh sách OrderItemDTO vào OrdersDTO
+
+                    return CommonResult.success(orderDto, "Get order successfully");
+                })
+                .orElse(CommonResult.error(404, "Order not found"));
+    }
 
 
 
     @GetMapping("/user")
-    public CommonResult<List<OrdersDTO>> getUserOrders() {
-        User user  = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        List<Orders> ordersList = iOrdersService.findByUserId(user.getId());
-        List<OrdersDTO> ordersDTOList = ordersList.stream().map(orderMapper::toDto).collect(Collectors.toList());
-        return CommonResult.success(ordersDTOList, "Get user orders successfully");
+    public CommonResult<Page<OrdersDTO>> getUserOrders(
+            @RequestParam(required = false) Long id,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by("id").descending());
+
+        Page<Orders> ordersPage;
+        if (id != null) {
+            // Nếu có id, tìm order cụ thể của user
+            ordersPage = iOrdersService.findByUserIdAndId(user.getId(), id, pageRequest);
+        } else {
+            // Nếu không có id, lấy tất cả orders của user với phân trang
+            ordersPage = iOrdersService.findByUserIdWithPagination(user.getId(), pageRequest);
+        }
+
+        Page<OrdersDTO> ordersDTOPage = ordersPage.map(orderMapper::toDto);
+        return CommonResult.success(ordersDTOPage, "Get user orders successfully");
     }
 
-//    @GetMapping("/user/order-items")
-//    public CommonResult<List<OrderItemDTO>> getUserOrderItems() {
-//        // Lấy thông tin người dùng từ SecurityContextHolder
-//        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-//
-//        // Lấy danh sách các OrderItems từ OrdersService bằng userId
-//        List<OrderItemDTO> orderItems = iOrdersService.findOrderItemsByOrder(user.getId());
-//
-//        if (orderItems.isEmpty()) {
-//            return CommonResult.error(404, "No order items found for the user.");
-//        }
-//        return CommonResult.success(orderItems, "Get order items successfully.");
-//    }
 
     @PostMapping
     @PreAuthorize("hasRole('ROLE_USER')")
@@ -201,52 +215,25 @@ public CommonResult<OrdersDTO> getOrderById(@PathVariable Long id) {
     }
 
     @GetMapping("/admin")
-//    @PreAuthorize("hasRole('ADMIN')")
-    public CommonResult<List<OrdersDTO>> getAllOrdersForAdmin() {
-        // Lấy tất cả Orders
-        List<Orders> orders = iOrdersService.findAllForAdmin();
+    public CommonResult<Page<OrdersDTO>> getAllOrdersForAdmin(
+            @RequestParam(required = false) Long id,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by("id").descending());
+        Page<Orders> ordersPage;
 
-        // Chuyển đổi sang DTO
-        List<OrdersDTO> ordersDTOs = orders.stream().map(orderMapper::toDto).collect(Collectors.toList());
 
-        return CommonResult.success(ordersDTOs, "Get all orders for admin successfully");
+        ordersPage = iOrdersService.findAllForAdmin(id, pageRequest);
+
+
+        Page<OrdersDTO> ordersDTOPage = ordersPage.map(orderMapper::toDto);
+        return CommonResult.success(ordersDTOPage, "Get all orders for admin successfully");
     }
 
-//    private final OrdersService ordersService;
-
-//    public OrdersController(OrdersService ordersService) {
-//        this.ordersService = ordersService;
-//    }
 
     private final ShopRepository shopRepository;
-//    User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-//    Optional<Shop> shopOpt = shopRepository.findShopByUserId(user.getId());
-//    Long shopId = shopOpt.map(Shop::getId).orElse(null);
 
-    //17/12
-//    @GetMapping("/address-detail")
-//    public ResponseEntity<List<String>> getAddressDetailsByShopId(@RequestParam("shopId") Long shopId) {
-//        List<String> addressDetails = ordersService.getAddressDetailsByShopId(shopId);
-//        return ResponseEntity.ok(addressDetails);
-//    }
-
-    //Danh sach tinh thanh goc
-//    @GetMapping("/address-detail")
-//    public ResponseEntity<List<String>> getAddressDetails() {
-//        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-//
-//        // Lấy thông tin shopId từ userId thông qua repository
-//        Shop shopOpt = shopRepository.findByUserId(user.getId());
-//        if (shopOpt != null) {
-//            Long shopId = shopOpt.getId();
-//
-//            // Gọi service logic với shopId
-//            List<String> addressDetails = ordersService.getAddressDetailsByShopId(shopId);
-//            return ResponseEntity.ok(addressDetails);
-//        } else {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList());
-//        }
-//    }
 
     @GetMapping("/address-detail")
     public ResponseEntity<Map<String, Integer>> getAddressDetails() {
@@ -306,54 +293,6 @@ public CommonResult<OrdersDTO> getOrderById(@PathVariable Long id) {
 
 
 
-//    @GetMapping("/address-detail/count")
-//    public ResponseEntity<Map<String, Integer>> getCountOfProvinces(@RequestParam("shopId") Long shopId) {
-//        List<String> addressDetails = ordersService.getAddressDetailsByShopId(shopId);
-//        Map<String, Integer> provinceCount = countProvinces(addressDetails);
-//        return ResponseEntity.ok(provinceCount);
-//    }
-
-    /**
-     * Hàm nhận diện và tính toán số lượng tỉnh thành trong danh sách địa chỉ.
-     */
-//    private Map<String, Integer> countProvinces(List<String> addressDetails) {
-//        // Danh sách các tỉnh thành của Việt Nam
-//        List<String> provinces = Arrays.asList(
-//                "Ha Noi", "Ho Chi Minh", "Hai Phong", "Can Tho", "Da Nang", "Binh Duong",
-//                "Dong Nai", "Quang Ninh", "Kien Giang", "Khanh Hoa", "Nghe An", "Hai Duong",
-//                "Ha Tinh", "Thanh Hoa", "Soc Trang", "Ben Tre", "Binh Dinh", "Dak Lak",
-//                "Dak Nong", "Lai Chau", "Lam Dong", "Lang Son", "Lao Cai", "Quang Nam",
-//                "Quang Tri", "Quang Binh", "Ninh Binh", "Ninh Thuan", "Gia Lai", "Phu Tho",
-//                "Tien Giang", "Tra Vinh", "Bac Ninh", "Bac Giang", "Yen Bai", "Hoa Binh",
-//                "Ha Giang", "Cao Bang", "Bac Kan", "Tuyen Quang", "Thai Nguyen", "Phu Yen",
-//                "Binh Phuoc", "Ba Ria Vung Tau", "Vinh Phuc", "Thai Binh", "Nam Dinh", "Hung Yen",
-//                "Long An", "An Giang", "Dong Thap", "Vinh Long", "Hau Giang", "Bac Lieu",
-//                "Ca Mau", "Son La", "Dien Bien", "Kon Tum", "Tay Ninh", "Lai Chau", "Hoa Binh",
-//                "Quang Ngai"
-//        );
-//
-//
-//        // Tạo bản đồ đếm
-//        Map<String, Integer> provinceCountMap = new HashMap<>();
-//
-//        for (String address : addressDetails) {
-//            boolean found = false;
-//            for (String province : provinces) {
-//                if (address.contains(province)) { // Kiểm tra địa chỉ chứa tỉnh thành
-//                    provinceCountMap.put(province, provinceCountMap.getOrDefault(province, 0) + 1);
-//                    found = true;
-//                    break;
-//                }
-//            }
-//
-//            if (!found) { // Nếu không tìm thấy trong danh sách
-//                provinceCountMap.put("Khác", provinceCountMap.getOrDefault("Khác", 0) + 1);
-//            }
-//        }
-//
-//        return provinceCountMap;
-//    }
-
 
 
     @GetMapping("/completed")
@@ -363,25 +302,7 @@ public CommonResult<OrdersDTO> getOrderById(@PathVariable Long id) {
         return ordersService.getCompletedOrders(month, year);
     }
 
-//    public List<Long> getCompletedUserIds(int month, int year) {
-//        YearMonth yearMonth = YearMonth.of(year, month);
-//        LocalDateTime startDate = yearMonth.atDay(1).atStartOfDay();
-//        LocalDateTime endDate = yearMonth.atEndOfMonth().atTime(23, 59, 59);
-//
-//        return ordersRepository
-//                .findByStatusAndCreatedAtBetween(Orders.OrderStatus.COMPLETED, startDate, endDate)
-//                .stream()
-//                .map(Orders::getUserId) // Chỉ lấy userId
-//                .distinct() //
-//                .collect(Collectors.toList());
-//    }
 
-//    @GetMapping("/completed")
-//    public List<Long> getCompletedUserIds(
-//            @RequestParam int month,
-//            @RequestParam int year) {
-//        return ordersService.getCompletedUserIds(month, year);
-//    }
 
     @GetMapping("/revenue")
     public ResponseEntity<List<Map<String, Object>>> getRevenueByDateRange(
@@ -391,14 +312,7 @@ public CommonResult<OrdersDTO> getOrderById(@PathVariable Long id) {
         return ResponseEntity.ok(revenues);
     }
 
-//    @GetMapping("/revenueByShop")
-//    public ResponseEntity<List<Map<String, Object>>> getRevenueByDateRangeAndShopId(
-//            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
-//            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
-//            @RequestParam("shopId") Long shopId) {
-//        List<Map<String, Object>> revenues = ordersService.getRevenueByDateRangeAndShopId(startDate, endDate, shopId);
-//        return ResponseEntity.ok(revenues);
-//    }
+
 
     @GetMapping("/revenueByShop")
     public ResponseEntity<List<Map<String, Object>>> getRevenueByDateRangeAndShopId(
@@ -422,5 +336,49 @@ public CommonResult<OrdersDTO> getOrderById(@PathVariable Long id) {
         }
     }
 
+
+    @GetMapping("/status/{status}")
+    public CommonResult<Page<OrdersDTO>> getOrdersByStatus(
+            @PathVariable Orders.OrderStatus status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "",required = false) Long id
+    ) {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by("id").ascending());
+        Page<Orders> ordersPage = iOrdersService.findByStatusWithPagination(status, user.getId(), pageRequest, id );
+        Page<OrdersDTO> ordersDTOPage = ordersPage.map(orderMapper::toDto);
+        return CommonResult.success(ordersDTOPage, "Get orders by status successfully");
+    }
+
+    @GetMapping("/seller/status/{status}")
+    public CommonResult<Page<OrdersDTO>> getOrdersByStatusBySeller(
+            @PathVariable Orders.OrderStatus status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "",required = false) Long id
+    ) {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by("id").descending());
+        Page<Orders> ordersPage = iOrdersService.findByStatusWithPaginationBySeller(status, user.getId(), pageRequest, id );
+        Page<OrdersDTO> ordersDTOPage = ordersPage.map(orderMapper::toDto);
+        return CommonResult.success(ordersDTOPage, "Seller get orders by status successfully");
+    }
+
+
+
+    @GetMapping("/admin/status/{status}")
+    public CommonResult<Page<OrdersDTO>> getOrdersByStatusByAdmin(
+            @PathVariable Orders.OrderStatus status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "",required = false) Long id
+    ) {
+
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by("id").descending());
+        Page<Orders> ordersPage = iOrdersService.findByStatusWithPaginationByAdmin(status,  pageRequest, id );
+        Page<OrdersDTO> ordersDTOPage = ordersPage.map(orderMapper::toDto);
+        return CommonResult.success(ordersDTOPage, "Admin get orders by status successfully");
+    }
 
 }
