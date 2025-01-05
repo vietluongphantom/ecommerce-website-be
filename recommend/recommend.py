@@ -4,9 +4,162 @@ from mlxtend.preprocessing import TransactionEncoder
 import pandas as pd
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-
+from collections import defaultdict
+from itertools import combinations
 app = Flask(__name__)
 CORS(app)  # Cho phép cross-origin requests
+
+
+
+def generate_frequent_itemsets(transactions, min_support):
+    # Chuyển đổi tất cả items sang string
+    transactions = [[str(item) for item in transaction] for transaction in transactions]
+     
+     # Number of transactions
+    n_transactions = len(transactions)
+    print(f"\nTotal number of transactions: {n_transactions}")
+
+    # Số lượng giao dịch
+    n_transactions = len(transactions)
+    
+    # Bước 1: Tìm frequent 1-itemsets
+    item_counts = defaultdict(int)
+    for transaction in transactions:
+        for item in transaction:
+            item_counts[frozenset([item])] += 1
+    
+    # Lọc các items có support >= min_support
+    min_support_count = min_support * n_transactions
+    frequent_itemsets = {
+        k: v/n_transactions 
+        for k, v in item_counts.items() 
+        if v >= min_support_count
+    }
+
+    # Print frequent 1-itemsets with their support values
+    print("\nFrequent 1-itemsets and their support values:")
+    for item_set, support in frequent_itemsets.items():
+        print(f"Item {list(item_set)[0]}: support = {support:.3f}")
+
+    
+    # Bước 2: Lặp để tìm frequent k-itemsets
+    k = 2
+    while True:
+        print(f"\n=== Finding {k}-itemsets ===")
+        # Tạo candidate k-itemsets từ frequent (k-1)-itemsets
+        candidates = set()
+        prev_frequent_items = list(frequent_itemsets.keys())
+        
+        print(f"\nGenerating candidates from {len(prev_frequent_items)} previous frequent itemsets...")
+
+        for i in range(len(prev_frequent_items)):
+            for j in range(i+1, len(prev_frequent_items)):
+                items1 = set(prev_frequent_items[i])
+                items2 = set(prev_frequent_items[j])
+                union = items1.union(items2)
+                if len(union) == k:
+                    candidates.add(frozenset(union))
+        
+        print(f"Generated {len(candidates)} candidate {k}-itemsets:")
+        for candidate in candidates:
+            print(f"Candidate: {set(candidate)}")
+
+        if not candidates:
+            print(f"\nNo {k}-itemset candidates generated. Stopping.")
+            break
+            
+        # Đếm support cho các candidate
+        candidate_counts = defaultdict(int)
+        for transaction in transactions:
+            transaction_set = set(transaction)
+            for candidate in candidates:
+                if candidate.issubset(transaction_set):
+                    candidate_counts[candidate] += 1
+        
+        # Thêm frequent k-itemsets vào kết quả
+        k_frequent = {
+            k: v/n_transactions 
+            for k, v in candidate_counts.items() 
+            if v >= min_support_count
+        }
+        
+        print(f"\nFound {len(k_frequent)} frequent {k}-itemsets:")
+        for itemset, support in k_frequent.items():
+            print(f"Itemset {set(itemset)}: support = {support:.3f}")
+        
+        if not k_frequent:
+            print(f"\nNo frequent {k}-itemsets found. Stopping.")
+            break
+            
+        frequent_itemsets.update(k_frequent)
+        k += 1
+    
+    print("\n=== Final Results ===")
+    print(f"Total number of frequent itemsets found: {len(frequent_itemsets)}")
+    print("\nAll frequent itemsets with their support values:")
+    for itemset, support in frequent_itemsets.items():
+        print(f"Itemset {set(itemset)}: support = {support:.3f}")
+
+    return frequent_itemsets
+
+def generate_association_rules(frequent_itemsets, min_confidence):
+
+    print("\n=== BẮT ĐẦU TẠO LUẬT KẾT HỢP ===")
+    print(f"Số lượng tập phổ biến đầu vào: {len(frequent_itemsets)}")
+    print(f"Ngưỡng độ tin cậy tối thiểu: {min_confidence}")
+    
+    rules = []
+    rule_count = 0
+    
+    for itemset, support in frequent_itemsets.items():
+        if len(itemset) < 2:
+            continue
+            
+        print(f"\n Đang xử lý tập phổ biến: {set(itemset)} (support = {support:.3f})")
+        
+        # Tạo tất cả các subset có thể làm antecedent
+        for i in range(1, len(itemset)):
+            
+            for antecedent in combinations(itemset, i):
+                antecedent = frozenset(antecedent)
+                consequent = itemset - antecedent
+                
+                print(f"\n    Kiểm tra luật: {set(antecedent)} => {set(consequent)}")
+                
+                # Tính confidence
+                if antecedent in frequent_itemsets:
+                    confidence = support / frequent_itemsets[antecedent]
+                    print(f"       Độ tin cậy = {confidence:.3f}")
+                    
+                    if confidence >= min_confidence:
+                        rule_count += 1
+                        print(f"       Luật thỏa mãn điều kiện!")
+                        rule = {
+                            'antecedents': set(antecedent),
+                            'consequents': set(consequent),
+                            'support': support,
+                            'confidence': confidence
+                        }
+                        rules.append(rule)
+                    else:
+                        print(f"       Độ tin cậy thấp hơn ngưỡng {min_confidence}")
+                else:
+                    print("       Tiền đề không nằm trong tập phổ biến")
+    
+    print("\n=== KẾT QUẢ CUỐI CÙNG ===")
+    print(f"Tổng số luật tìm được: {rule_count}")
+    
+    if rules:
+        print("\nDanh sách các luật kết hợp (sắp xếp theo độ tin cậy):")
+        sorted_rules = sorted(rules, key=lambda x: x['confidence'], reverse=True)
+        for idx, rule in enumerate(sorted_rules, 1):
+            print(f"\nLuật {idx}:")
+            print(f"  Nếu mua: {rule['antecedents']}")
+            print(f"  Thì sẽ mua: {rule['consequents']}")
+            print(f"  Support: {rule['support']:.3f}")
+            print(f"  Confidence: {rule['confidence']:.3f}")
+    
+    return rules
 
 def get_database_connection():
     """
@@ -14,15 +167,15 @@ def get_database_connection():
     """
     try:
         connection = mysql.connector.connect(
-            host='localhost',          # Địa chỉ máy chủ MySQL
-            port=3306,                 # Cổng MySQL 
-            user='root',               # Tên đăng nhập MySQL
-            password='kien0702',       # Mật khẩu MySQL 
-            database='ecommercedb'     # Tên cơ sở dữ liệu
+            host='localhost',          
+            port=3306,                
+            user='root',              
+            password='kien0702',       
+            database='ecommercedb'     
         )
         return connection
     except mysql.connector.Error as err:
-        print(f"❌ Không thể kết nối database: {err}")
+        print(f" Không thể kết nối database: {err}")
         raise
 
 def get_order_data():
@@ -99,73 +252,46 @@ GROUP BY
             print("✅ Đã đóng kết nối database")
 
 def create_recommendation_rules(data):
-    """
-    Tạo quy tắc gợi ý sản phẩm từ dữ liệu đơn hàng
-    """
+
     if not data:
-        print("❌ Không có dữ liệu để tạo quy tắc!")
-        return pd.DataFrame()  # Trả về DataFrame rỗng
+        print(" Không có dữ liệu để tạo quy tắc!")
+        return []
 
-    # Chuyển đổi tất cả các item sang string để đảm bảo tính nhất quán
-    data = [[str(item) for item in order] for order in data]
-
-    # Sử dụng TransactionEncoder để chuyển đổi dữ liệu
-    te = TransactionEncoder()
-    te_ary = te.fit(data).transform(data)
-    df = pd.DataFrame(te_ary, columns=te.columns_)
-
-    # Tìm tập mục thường xuyên với ngưỡng support thấp hơn
-    print("🔍 Đang tìm tập mục thường xuyên...")
-    frequent_itemsets = apriori(df, min_support=0.01, use_colnames=True)
+    print(" Đang tìm tập mục thường xuyên...")
+    frequent_itemsets = generate_frequent_itemsets(data, min_support=0.01)
     
-    # Kiểm tra frequent_itemsets
-    if frequent_itemsets.empty:
-        print("❌ Không tìm thấy tập mục thường xuyên!")
-        return pd.DataFrame()
+    if not frequent_itemsets:
+        print(" Không tìm thấy tập mục thường xuyên!")
+        return []
 
-    # Tạo quy tắc kết hợp
-    print("🔍 Đang tạo quy tắc kết hợp...")
-    rules = association_rules(
-        frequent_itemsets, 
-        metric="confidence", 
-        min_threshold=0.01,  # Giảm ngưỡng confidence
-        num_itemsets=2
-    )
+    print(" Đang tạo quy tắc kết hợp...")
+    rules = generate_association_rules(frequent_itemsets, min_confidence=0.01)
     
     print(f"✅ Đã tạo {len(rules)} quy tắc kết hợp")
     return rules
 
 def recommend_products(product_id, rules, top_n=5):
-    """
-    Tạo gợi ý sản phẩm dựa trên quy tắc kết hợp
-    """
     # Chuyển đổi product_id sang string
     product_id = str(product_id)
-
+    print(f"\n=== TÌM GỢI Ý CHO SẢN PHẨM ID: {product_id} ===")
     # Kiểm tra rules có rỗng không
-    if rules.empty:
-        print("❌ Không có quy tắc để tạo recommendation")
+    if not rules:
+        print(" Không có quy tắc để tạo recommendation")
         return []
-
-    # Debug: In thông tin chi tiết
-    print(f"🔍 Tìm recommendation cho product_id: {product_id}")
-    print(f"📊 Tổng số rules: {len(rules)}")
-
     # Lọc các luật có sản phẩm đầu vào trong tập antecedents
-    related_rules = rules[rules['antecedents'].apply(lambda x: product_id in x)]
-    
-    print(f"📊 Số lượng related_rules: {len(related_rules)}")
-    
-    if related_rules.empty:
-        print(f"❌ Không tìm thấy rules liên quan đến product_id {product_id}")
+    related_rules = [
+        rule for rule in rules 
+        if product_id in rule['antecedents']
+    ]
+    print(f" Số lượng related_rules: {len(related_rules)}")
+    if not related_rules:
+        print(f" Không tìm thấy rules liên quan đến product_id {product_id}")
         return []
-
     # Sắp xếp theo độ tin cậy giảm dần
-    related_rules = related_rules.sort_values('confidence', ascending=False)
-
+    related_rules.sort(key=lambda x: x['confidence'], reverse=True)
     # Lấy danh sách sản phẩm gợi ý
     recommendations = []
-    for _, rule in related_rules.iterrows():
+    for rule in related_rules:
         for item in rule['consequents']:
             if item != product_id and item not in recommendations:
                 recommendations.append(item)
@@ -173,8 +299,7 @@ def recommend_products(product_id, rules, top_n=5):
                     break
         if len(recommendations) == top_n:
             break
-    
-    print(f"✅ Các sản phẩm được gợi ý: {recommendations}")
+    print(f" Các sản phẩm được gợi ý: {recommendations}")
     return recommendations
 
 
