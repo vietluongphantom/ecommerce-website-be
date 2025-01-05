@@ -179,12 +179,16 @@ public class CheckoutServiceImpl implements ICheckoutService {
     @Transactional
     private  void minusQuantityProductItem(Long productItemId, Integer quantityProductItem){
         ProductItem productItem = productItemRepository.findById(productItemId).get();
+        Product product = productRepository.findById(productItem.getProductId()).orElseThrow(() -> new DataNotFoundException("Không tìm thấy sản phẩm"));
         if (productItem.getQuantity() < quantityProductItem){
-            throw new QuantityExceededException("Quantity of product item not enough");
+            throw new QuantityExceededException("Số lượng sản phẩm " + product.getName() + " hiện tại vượt quá số lượng sản phẩm của shop");
         }
         productItem.setQuantity(productItem.getQuantity() - quantityProductItem);
         productItemRepository.save(productItem);
     }
+
+
+//    check
 
 
     private void updateProductStock(ProductItem productItem, int quantity) {

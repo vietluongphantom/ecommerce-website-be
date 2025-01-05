@@ -64,7 +64,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message);
     }
     @ExceptionHandler(DataNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
+//    @ResponseStatus(HttpStatus.NOT_FOUND)
     public CommonResult handleResourceNotFoundException(DataNotFoundException exception) {
         return CommonResult.validateFailed(exception.getMessage());
     }
@@ -75,13 +75,13 @@ public class GlobalExceptionHandler {
 //        return CommonResult.validateFailed(exception.getMessage());
 //    }
     @ExceptionHandler(QuantityExceededException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
+//    @ResponseStatus(HttpStatus.NOT_FOUND)
     public CommonResult handleQuantityExceededException(QuantityExceededException exception) {
         return CommonResult.validateFailed(exception.getMessage());
     }
 
     @ExceptionHandler(AlreadyExistedException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
+//    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public CommonResult handleAlreadyExistedException(AlreadyExistedException exception) {
         return CommonResult.validateFailed(exception.getMessage());
     }
