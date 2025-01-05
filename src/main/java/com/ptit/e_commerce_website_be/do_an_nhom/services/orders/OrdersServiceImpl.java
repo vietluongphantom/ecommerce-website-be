@@ -13,6 +13,9 @@ import com.ptit.e_commerce_website_be.do_an_nhom.repositories.*;
 import com.ptit.e_commerce_website_be.do_an_nhom.services.product.IProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -61,6 +64,23 @@ public class OrdersServiceImpl implements IOrdersService {
 
         return ordersList;
     }
+
+
+    @Override
+    public Page<Orders> findByShopIdAndId(Long userId, PageRequest pageRequest, Long id ){
+        User user = userRepository.findById(userId).orElseThrow(()-> new DataNotFoundException("Cannot find user by this id"));
+        Address address = addressRepository.findByUserId(userId)
+                .orElseThrow(()-> new DataNotFoundException("Cannot find address by userId"));
+        String addressReceiver = address.getCommune() + ", " + address.getDistrict() + ", " + address.getProvince() + "," + address.getCountry();
+        Shop shop = shopRepository.findByUserId(userId);
+        Page<Orders> ordersList = ordersRepository.findByShopIdAndId(shop.getId(), pageRequest, id);
+
+        return ordersList;
+    }
+
+
+
+
 
     @Override
     public Optional<Orders> findById(Long id) {
@@ -120,19 +140,54 @@ public class OrdersServiceImpl implements IOrdersService {
     public boolean checkUserPurchasedProduct(Long userId, Long productId) {
         return orderItemRepository.hasUserPurchasedProduct(userId, productId);
     }
+
+    @Override
+    public Page<Orders> findAllForAdmin(Long id, PageRequest pageRequest ) {
+        return ordersRepository.findAllByAdmin(id, pageRequest);
+    }
+
+
+
+    @Override
+    public Page<Orders> findByStatusWithPagination(Orders.OrderStatus status, Long userId, PageRequest pageRequest, Long id) {
+//        return ordersRepository.findByStatusAndUserIdAndId(status, userId, pageRequest, id);
+        if (id != null) {
+            return ordersRepository.findByStatusAndUserIdAndId(status, userId, pageRequest,id);
+        } else {
+            return ordersRepository.findByStatusAndUserId(status, userId, pageRequest);
+        }
+    }
+
+    //
 //    @Override
-//    public List<OrderItemDTO> findOrderItemsByUserId(Long userId) {
-//        // Lấy danh sách các OrderItem dựa trên userId
-//        List<OrderItem> orderItems = orderItemRepository.findByOrderId(userId); // Giả định rằng bạn đã định nghĩa phương thức này trong OrderItemRepository
-//
-//        // Chuyển đổi danh sách OrderItem sang danh sách OrderItemDTO
-//        return orderItems.stream()
-//                .map(orderMapper::toOrderItemDTO) // Sử dụng orderMapper để chuyển đổi
-//                .collect(Collectors.toList());
+//    public List<Orders> findByUserIdAndId(Long userId, Long id) {
+//        return ordersRepository.findByUserIdAndId(userId, id);
 //    }
     @Override
-    public List<Orders> findAllForAdmin() {
-        return ordersRepository.findAllByAdmin();
+    public Page<Orders> findByUserIdWithPagination(Long userId, PageRequest pageRequest) {
+        return ordersRepository.findByUserId(userId, pageRequest);
+    }
+
+    @Override
+    public Page<Orders> findByUserIdAndId(Long userId, Long id, PageRequest pageRequest) {
+        return ordersRepository.findByUserIdAndId(userId, id, pageRequest);
+    }
+    @Override
+    public Page<Orders> findByStatusWithPaginationBySeller(Orders.OrderStatus status, Long userId, PageRequest pageRequest, Long id) {
+        User user = userRepository.findById(userId).orElseThrow(()-> new DataNotFoundException("Cannot find user by this id"));
+
+        Shop shop = shopRepository.findByUserId(userId);
+        Page<Orders> ordersList = ordersRepository.findByStatusWithPaginationBySeller(status,shop.getId(),pageRequest,id);
+
+        return ordersList;
+    }
+
+    @Override
+    public Page<Orders> findByStatusWithPaginationByAdmin(Orders.OrderStatus status, PageRequest pageRequest, Long id) {
+
+        Page<Orders> ordersList = ordersRepository.findByStatusWithPaginationByAdmin(status,pageRequest,id);
+
+        return ordersList;
     }
 
 }
