@@ -62,6 +62,7 @@ public class CheckoutServiceImpl implements ICheckoutService {
                 int quantity = cartItem.getQuantity();
                 BigDecimal unit = totalPrice.divide(BigDecimal.valueOf(quantity), BigDecimal.ROUND_HALF_UP);
                 saveOrderItem(orders, cartItem, unit);
+                // tru so luong san pham
                 minusQuantityProductItem(cartItem.getProductItemId(), cartItem.getQuantity());
             }
             // Cập nhật tổng giá của đơn hàng

@@ -36,6 +36,7 @@ public class WhitelistUrls {
             "/api/report/**",
             "/api/chat/**",
             "/ws/**",
-            "/socket.io/**"
+            "/socket.io/**",
+            "/api/forgotPassword/**"
     };
 }

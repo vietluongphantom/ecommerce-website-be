@@ -62,18 +62,18 @@ public class ProductItemServiceImpl implements ProductItemService
         if(productAttributesList.size() == valuesCount ) {
             List<ProductItem> productItemList = productItemRepository.findProductItemByAttributesValues(detailProductItemDTO.getProductId(), valuesIds, valuesCount);
             if(productItemList.size() > 0 ){
-                throw new AlreadyExistedException("product item already exists");
+                throw new AlreadyExistedException("Giá trị thuộc tính đã được sử dụng");
             }
         }
         if(productAttributesList.size() > valuesCount ) {
-            throw new QuantityExceededException("number of product item attribute list isn't enough ");
+            throw new QuantityExceededException("Số lượng thuộc tính sản phẩm không đủ");
         }
 //        else {
 //            throw new Exception("number of product item attribute list isn't enough ");
 //        }
 
         Product product = productRepository.findById(detailProductItemDTO.getProductId())
-                .orElseThrow(()-> new DataNotFoundException("Cannot not found product"));
+                .orElseThrow(()-> new DataNotFoundException("Không thể tìm thấy sản phẩm"));
 
         if (product.getMinPrice() == null || product.getMinPrice().compareTo(detailProductItemDTO.getPrice()) > 0) {
             product.setMinPrice(detailProductItemDTO.getPrice());
@@ -82,7 +82,7 @@ public class ProductItemServiceImpl implements ProductItemService
 
         ProductItem checkProductItem = productItemRepository.findBySkuCode(detailProductItemDTO.getSkuCode(), detailProductItemDTO.getProductId());
         if(checkProductItem != null){
-            throw new AlreadyExistedException("sku code has been used");
+            throw new AlreadyExistedException("Mã sản phẩm đã được sử dụng");
         }
         ProductItem productItem = ProductItem.builder()
                 .importPrice(detailProductItemDTO.getImportPrice())
