@@ -346,8 +346,11 @@ public class VoucherServiceImpl implements IVoucherService {
 
     @Override
     public List<VoucherDTO> findAllVouchersByShopId(Long shopId) {
+        LocalDateTime now = LocalDateTime.now();
         List<Voucher> vouchers = voucherRepository.findByShopIdAndIsActiveAndIsPublic(shopId, true, true);
+
         return vouchers.stream()
+                .filter(voucher -> voucher.getExpiredAt().isAfter(now))
                 .map(voucherMapper::toDTO)
                 .collect(Collectors.toList());
     }

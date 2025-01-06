@@ -117,7 +117,7 @@ public class ProductItemServiceImpl implements ProductItemService
         int offset = pageable.getPageNumber() * limit;
         List<ProductItem> productItems =  productItemRepository.findAllByProductId(productId);
         Product product = productRepository.findById(productId)
-                .orElseThrow(()->new DataNotFoundException("Cannot find product"));
+                .orElseThrow(()->new DataNotFoundException("Không thể tìm thấy sản phẩm"));
 
         List<Object> productItemValues =  new ArrayList<>();
 
@@ -153,7 +153,7 @@ public class ProductItemServiceImpl implements ProductItemService
     @Transactional
     public DetailProductItemDTO updateProductItem(DetailProductItemDTO detailProductItemDTO, Long userId){
         Product product = productRepository.findById(detailProductItemDTO.getProductId())
-                .orElseThrow(()-> new DataNotFoundException("Cannot not found product"));
+                .orElseThrow(()-> new DataNotFoundException("Không thể tìm thấy sản phẩm"));
         int valuesCount = detailProductItemDTO.getProductItemAtrAttributesDTOS().size();
         List<ProductAttributes> productAttributesList = productAttributesRepository.findAllByProductId(detailProductItemDTO.getProductId());
 
@@ -163,8 +163,11 @@ public class ProductItemServiceImpl implements ProductItemService
         if(productAttributesList.size() == valuesCount ) {
             List<ProductItem> productItemList = productItemRepository.findProductItemByAttributesValues(detailProductItemDTO.getProductId(), valuesIds, valuesCount);
             if(productItemList.size() > 0 ){
-                throw new AlreadyExistedException("product item already exists");
+                throw new AlreadyExistedException("Giá trị thuộc tính đã được sử dụng");
             }
+        }
+        if(productAttributesList.size() > valuesCount ) {
+            throw new QuantityExceededException("Số lượng thuộc tính sản phẩm không đủ");
         }
         if (product.getMinPrice() == null || product.getMinPrice().compareTo(detailProductItemDTO.getPrice()) > 0) {
             product.setMinPrice(detailProductItemDTO.getPrice());

@@ -35,6 +35,8 @@ public class OrdersServiceImpl implements IOrdersService {
     private final OrderItemRepository orderItemRepository;
     private final ShopRepository shopRepository;
     private final AddressRepository addressRepository;
+    private final ProductItemRepository productItemRepository;
+
 
     @Override
     public OrdersDTO addOrder(OrdersDTO orderDTO, Long userId){
@@ -127,8 +129,17 @@ public class OrdersServiceImpl implements IOrdersService {
                 .orderId(orderId)
                 .userId(order.getUserId())
                 .status(newStatus)
+                .message(createMessage(newStatus))
+                .isRead(Boolean.TRUE)
                 .build();
         orderStatusHistoryRepository.save(history);
+
+        List<OrderItem> orderItems = orderItemRepository.findByOrderId(orderId);
+        for(int j = 0 ; j < orderItems.size(); j ++){
+            ProductItem productItem =  productItemRepository.findById(orderItems.get(j).getProductItemId()).get();
+            productItem.setQuantity(productItem.getQuantity()+ orderItems.get(j).getQuantity());
+            productItemRepository.save(productItem);
+        }
     }
 
     @Override
@@ -189,5 +200,26 @@ public class OrdersServiceImpl implements IOrdersService {
 
         return ordersList;
     }
-
+    private String createMessage(Orders.OrderStatus status) {
+        switch (status) {
+            case PENDING:
+                return "đang trong trạng thái chờ";
+            case CONFIRMED:
+                return "đã được xác nhận";
+            case SHIPPED:
+                return "đã được giao";
+            case DELIVERED:
+                return "đang được giao";
+            case CANCELLED:
+                return "đã bị huỷ";
+            case PACKED:
+                return "đã được đóng gói và đang trờ vận chuyển";
+            case RETURNED:
+                return "đã được trả lại";
+            case COMPLETED:
+                return "đã hoàn thành";
+            default:
+                return "";
+        }
+    }
 }

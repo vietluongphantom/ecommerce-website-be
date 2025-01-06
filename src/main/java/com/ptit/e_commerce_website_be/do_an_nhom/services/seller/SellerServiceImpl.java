@@ -367,12 +367,13 @@ public class SellerServiceImpl implements SellerService{
             MailBody mailBody = MailBody.builder()
                     .to(registerUserDto.getEmail())
                     .text(
-                            "This is the OTP for your seller registering request: "
-                                    + otp
-                                    + "\nPlease verify your email to activate your account. You will become seller after verifying your email."
-                                    + "\nYou will also use this as user account then."
-                                    + "\nIf you didn't request this, please ignore this email."
+                        "Đây là mã OTP cho yêu cầu đăng ký người bán của bạn: "
+                            + otp
+                            + "\nVui lòng xác minh email của bạn để kích hoạt tài khoản. Bạn sẽ trở thành người bán sau khi xác minh email."
+                            + "\nBạn cũng sẽ sử dụng tài khoản này như một tài khoản người dùng."
+                            + "\nNếu bạn không yêu cầu điều này, vui lòng bỏ qua email này."
                     )
+                    .subject("Mã OTP cho yêu cầu đăng ký của bạn")
                     .build();
             emailService.sendSimpleMessage(mailBody);
 

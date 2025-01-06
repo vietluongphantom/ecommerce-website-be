@@ -139,8 +139,8 @@ public class CartItemServiceImpl implements ICartItemService {
                     .orElseThrow(() -> new DataNotFoundException("Product item not found"));
 
             // Trả lại số lượng sản phẩm vào ProductItem
-            productItem.setQuantity(productItem.getQuantity() + cartItem.getQuantity());
-            productItemRepository.save(productItem);  // Lưu lại thay đổi số lượng
+//            productItem.setQuantity(productItem.getQuantity() + cartItem.getQuantity());
+//            productItemRepository.save(productItem);  // Lưu lại thay đổi số lượng
 
             // Xóa CartItem
             cartItemRepository.delete(cartItem);
@@ -158,20 +158,20 @@ public class CartItemServiceImpl implements ICartItemService {
                 .orElseThrow(() -> new IllegalArgumentException("Product item not found"));
 
         // Kiểm tra số lượng sản phẩm có đủ không
-        if (productItem.getQuantity() < quantity) {
-            throw new IllegalArgumentException("Not enough quantity available");
-        }
+//        if (productItem.getQuantity() < quantity) {
+//            throw new IllegalArgumentException("Not enough quantity available");
+//        }
 
         // Cập nhật số lượng trong productItem
-        int currentQuantityInCart = cartItem.getQuantity();
-        int quantityDifference = quantity - currentQuantityInCart;
-        if (productItem.getQuantity() < quantityDifference) {
-            throw new IllegalArgumentException("Not enough quantity available");
-        }
-        productItem.setQuantity(productItem.getQuantity() - quantityDifference);
-
-        // Lưu thông tin productItem đã cập nhật
-        productItemRepository.save(productItem);
+//        int currentQuantityInCart = cartItem.getQuantity();
+//        int quantityDifference = quantity - currentQuantityInCart;
+//        if (productItem.getQuantity() < quantityDifference) {
+//            throw new IllegalArgumentException("Not enough quantity available");
+//        }
+//        productItem.setQuantity(productItem.getQuantity() - quantityDifference);
+//
+//        // Lưu thông tin productItem đã cập nhật
+//        productItemRepository.save(productItem);
 
         // Cập nhật số lượng trong cartItem
         cartItem.setQuantity(quantity);
