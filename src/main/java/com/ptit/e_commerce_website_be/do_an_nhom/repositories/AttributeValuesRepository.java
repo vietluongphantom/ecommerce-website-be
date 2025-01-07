@@ -1,6 +1,7 @@
 package com.ptit.e_commerce_website_be.do_an_nhom.repositories;
 
 
+import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.AttributeValuesDTO;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.AttributeValues;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

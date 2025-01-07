@@ -1,8 +1,15 @@
 package com.ptit.e_commerce_website_be.do_an_nhom.controllers;
 
+import com.ptit.e_commerce_website_be.do_an_nhom.exceptions.DataNotFoundException;
+import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.Address;
+import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.User;
+import com.ptit.e_commerce_website_be.do_an_nhom.models.response.CommonResult;
+import com.ptit.e_commerce_website_be.do_an_nhom.models.response.LoginResponse;
+import com.ptit.e_commerce_website_be.do_an_nhom.repositories.AddressRepository;
 import com.ptit.e_commerce_website_be.do_an_nhom.services.OrdersService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -11,6 +18,9 @@ import java.util.stream.Collectors;
 
 @RestController
 public class AddressController {
+
+    @Autowired
+    private AddressRepository addressRepository;
 
     @Autowired
     private OrdersService ordersService;
@@ -48,5 +58,13 @@ public class AddressController {
         }
 
         return provinceCountMap;
+    }
+
+
+    @GetMapping("/api/address")
+    public CommonResult<Address> getAddress() {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Address address = addressRepository.findByUserId(user.getId()).orElseThrow(()-> new DataNotFoundException(""));
+        return CommonResult.success(address);
     }
 }

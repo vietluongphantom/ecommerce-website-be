@@ -121,6 +121,11 @@ public class StatisticsController {
         stats.put("completedOrders", statisticsService.getTotalCompletedOrders());
         stats.put("cancelledOrders", statisticsService.getTotalCancelledOrders());
         stats.put("pendingOrders", statisticsService.getTotalPendingOrders());
+        stats.put("packedOrders", statisticsService.getTotalPackedOrders());
+        stats.put("shippedOrders", statisticsService.getTotalShippedOrders());
+//        stats.put("returnedOrders", statisticsService.getTotalReturnedOrders());
+        stats.put("confirmedOrders", statisticsService.getTotalConfirmedOrders());
+
         return ResponseEntity.ok(stats);
     }
 

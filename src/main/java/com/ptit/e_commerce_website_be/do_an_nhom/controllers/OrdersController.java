@@ -35,6 +35,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
 import java.time.LocalDateTime;
@@ -239,15 +240,11 @@ public class OrdersController {
     public ResponseEntity<Map<String, Integer>> getAddressDetails() {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        // Lấy thông tin shopId từ userId thông qua repository
         Shop shopOpt = shopRepository.findByUserId(user.getId());
         if (shopOpt != null) {
             Long shopId = shopOpt.getId();
-
-            // Gọi service logic với shopId
             List<String> addressDetails = ordersService.getAddressDetailsByShopId(shopId);
 
-            // Danh sách 63 tỉnh thành
             List<String> provinces = Arrays.asList(
                     "Ha Noi", "Ho Chi Minh", "Hai Phong", "Can Tho", "Da Nang", "Binh Duong",
                     "Dong Nai", "Quang Ninh", "Kien Giang", "Khanh Hoa", "Nghe An", "Hai Duong",
@@ -264,17 +261,27 @@ public class OrdersController {
 
             // Tạo Map để lưu số lần xuất hiện
             Map<String, Integer> provinceCount = new HashMap<>();
-            provinceCount.put("Khác", 0); // Dùng cho các địa chỉ không nằm trong danh sách
+            provinceCount.put("Khác", 0);
 
             // Đếm số lần xuất hiện
             for (String address : addressDetails) {
-                // Tách tỉnh thành từ chuỗi địa chỉ
                 String[] parts = address.split(",");
                 if (parts.length > 0) {
                     String province = parts[0].trim();
-                    if (provinces.contains(province)) {
-                        provinceCount.put(province, provinceCount.getOrDefault(province, 0) + 1);
-                    } else {
+
+                    // Chuyển tên tỉnh và địa chỉ về không dấu
+                    String normalizedProvince = removeVietnameseAccents(province).toLowerCase();
+                    boolean matched = false;
+
+                    for (String standardProvince : provinces) {
+                        if (removeVietnameseAccents(standardProvince).toLowerCase().equals(normalizedProvince)) {
+                            provinceCount.put(standardProvince, provinceCount.getOrDefault(standardProvince, 0) + 1);
+                            matched = true;
+                            break;
+                        }
+                    }
+
+                    if (!matched) {
                         provinceCount.put("Khác", provinceCount.get("Khác") + 1);
                     }
                 }
@@ -289,6 +296,12 @@ public class OrdersController {
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyMap());
         }
+    }
+
+    public static String removeVietnameseAccents(String str) {
+        str = Normalizer.normalize(str, Normalizer.Form.NFD);
+        str = str.replaceAll("\\p{M}", "");
+        return str;
     }
 
 

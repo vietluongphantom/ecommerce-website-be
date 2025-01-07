@@ -2,6 +2,7 @@ package com.ptit.e_commerce_website_be.do_an_nhom.controllers;
 
 
 import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.AttributeValuesDTO;
+import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.request.ValueListDTO;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.AttributeValues;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.User;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.response.CommonResult;
@@ -50,5 +51,13 @@ public class AttributeValuesController {
         return CommonResult.success(attributeValueService.getALLAttributeValues(id, user.getId()),"Delete attribute values successfully");
     }
 
+    @PutMapping("/all")
+    @PreAuthorize("hasRole('ROLE_SELLER')")
+    public CommonResult<List<AttributeValues>> updateAll(
+            @RequestBody ValueListDTO valueListDTO
+    ){
+        User user  = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return CommonResult.success(attributeValueService.updateALLAttributeValues(valueListDTO.getAttributeValuesDTOS()),"Update attribute values successfully");
+    }
 }
 

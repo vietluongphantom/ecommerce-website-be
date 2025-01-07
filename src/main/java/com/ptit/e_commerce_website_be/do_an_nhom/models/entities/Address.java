@@ -1,5 +1,6 @@
 package com.ptit.e_commerce_website_be.do_an_nhom.models.entities;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -39,6 +40,13 @@ public class Address {
 
     @Column(name = "user_id")//, nullable = false)
     private Long userId;
+
+    @Transient
+    @JsonProperty("full_name")
+    private String fullName;
+
+    @Transient
+    private String phone;
 
 //    @Column(name = "shop_id")
 //    private Long shopId;

@@ -33,7 +33,7 @@ public class ProductDTO {
 
     private String slug;
 
-    private Long totalSold;
+    private long totalSold;
 
     private Integer productView;
 
