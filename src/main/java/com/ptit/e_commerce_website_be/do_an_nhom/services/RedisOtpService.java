@@ -45,6 +45,7 @@ public class RedisOtpService {
 
         if (hashedOtp != null && passwordEncoder.matches(String.valueOf(otp), hashedOtp)) {
             redisTemplate.delete(email);
+            redisTemplate.delete(rateLimitKey(email));
             log.info("OTP verified and removed for email: {}", email);
             return true;
         } else {
