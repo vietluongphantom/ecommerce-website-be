@@ -157,10 +157,10 @@ public class CartItemServiceImpl implements ICartItemService {
         ProductItem productItem = productItemRepository.findById(cartItem.getProductItemId())
                 .orElseThrow(() -> new IllegalArgumentException("Product item not found"));
 
-        // Kiểm tra số lượng sản phẩm có đủ không
-//        if (productItem.getQuantity() < quantity) {
-//            throw new IllegalArgumentException("Not enough quantity available");
-//        }
+//         Kiểm tra số lượng sản phẩm có đủ không
+        if (productItem.getQuantity() < quantity) {
+            quantity = productItem.getQuantity();
+        }
 
         // Cập nhật số lượng trong productItem
 //        int currentQuantityInCart = cartItem.getQuantity();

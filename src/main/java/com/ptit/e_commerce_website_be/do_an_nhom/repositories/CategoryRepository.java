@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -24,4 +25,11 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
             "WHERE c.isDelete = false " +
             "GROUP BY c.id, c.name")
     List<CategoryProductCountDto> findCategoryProductCounts();
+
+
+    @Query("SELECT CASE WHEN COUNT(c) > 0 THEN TRUE ELSE FALSE END " +
+            "FROM Category c WHERE c.name = :name AND c.id <> :id AND c.isDelete = :isDelete")
+    boolean existsByNameAndIdNotAndIsDelete(@Param("name") String name,
+                                            @Param("id") Long id,
+                                            @Param("isDelete") Boolean isDelete);
 }

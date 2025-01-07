@@ -42,14 +42,42 @@ public class CategoryServiceImpl implements CategoryService{
     }
 
     @Override
+//    @Transactional
+//    public Category updateCategory(Long categoryId, CategoryDTO categoryDTO, Long userId){
+//        Category existingCategory = getCategoryById(categoryId);
+//        existingCategory.setName(categoryDTO.getName());
+//        existingCategory.setStatus(categoryDTO.getStatus());
+//        categoryRepository.save(existingCategory);
+//        return existingCategory;
+//    }
+
     @Transactional
-    public Category updateCategory(Long categoryId, CategoryDTO categoryDTO, Long userId){
+    public Category updateCategory(Long categoryId, CategoryDTO categoryDTO, Long userId) {
+        // Lấy category hiện có
         Category existingCategory = getCategoryById(categoryId);
+
+        // Kiểm tra nếu danh mục đã bị xóa (isDelete = true)
+        if (Boolean.TRUE.equals(existingCategory.getIsDelete())) {
+            throw new IllegalArgumentException("Không thể cập nhật danh mục đã bị xóa.");
+        }
+
+        // Kiểm tra xem có category khác với cùng tên tồn tại không
+        boolean isDuplicateName = categoryRepository.existsByNameAndIdNotAndIsDelete(
+                categoryDTO.getName(),
+                categoryId,
+                false // chỉ kiểm tra danh mục chưa bị xóa
+        );
+
+        if (isDuplicateName) {
+            throw new IllegalArgumentException("Tên danh mục đã tồn tại.");
+        }
+
+        // Cập nhật thông tin danh mục nếu không có lỗi
         existingCategory.setName(categoryDTO.getName());
         existingCategory.setStatus(categoryDTO.getStatus());
-        categoryRepository.save(existingCategory);
-        return existingCategory;
+        return categoryRepository.save(existingCategory);
     }
+
 
     @Override
     @Transactional
@@ -59,4 +87,6 @@ public class CategoryServiceImpl implements CategoryService{
             categoryRepository.save(category);
         return category;
     }
+
+
 }
