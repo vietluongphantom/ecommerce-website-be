@@ -270,7 +270,7 @@ public class ProductItemServiceImpl implements ProductItemService
             defaultItem.setSkuCode("0");
             defaultItem.setIsDelete(false);
             defaultItem.setImportPrice(BigDecimal.valueOf(0));
-            defaultItem.setTotalSold(null);
+            defaultItem.setTotalSold(0);
 
             productItemList.add(defaultItem);
         }
@@ -305,6 +305,7 @@ public class ProductItemServiceImpl implements ProductItemService
             for(int j = 0 ; j < orderItems.size(); j ++){
                 ProductItem productItem =  productItemRepository.findById(orderItems.get(j).getProductItemId()).get();
                 productItem.setQuantity(productItem.getQuantity()+ orderItems.get(j).getQuantity());
+                productItem.setTotalSold(productItem.getTotalSold() - orderItems.get(j).getQuantity());
                 productItemRepository.save(productItem);
             }
         }

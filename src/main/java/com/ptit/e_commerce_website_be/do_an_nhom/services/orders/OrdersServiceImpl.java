@@ -11,6 +11,7 @@ import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.Orders;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.*;
 import com.ptit.e_commerce_website_be.do_an_nhom.repositories.*;
 import com.ptit.e_commerce_website_be.do_an_nhom.services.product.IProductService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -36,6 +37,7 @@ public class OrdersServiceImpl implements IOrdersService {
     private final ShopRepository shopRepository;
     private final AddressRepository addressRepository;
     private final ProductItemRepository productItemRepository;
+    private final ProductRepository productRepository;
 
 
     @Override
@@ -117,6 +119,7 @@ public class OrdersServiceImpl implements IOrdersService {
     }
 
     @Override
+    @Transactional
     public void updateOrderStatus(Long orderId, Orders.OrderStatus newStatus) {
         Orders order = ordersRepository.findById(orderId)
                 .orElseThrow(() -> new DataNotFoundException("Order not found"));
@@ -134,11 +137,17 @@ public class OrdersServiceImpl implements IOrdersService {
                 .build();
         orderStatusHistoryRepository.save(history);
 
-        List<OrderItem> orderItems = orderItemRepository.findByOrderId(orderId);
-        for(int j = 0 ; j < orderItems.size(); j ++){
-            ProductItem productItem =  productItemRepository.findById(orderItems.get(j).getProductItemId()).get();
-            productItem.setQuantity(productItem.getQuantity()+ orderItems.get(j).getQuantity());
-            productItemRepository.save(productItem);
+        if(newStatus == Orders.OrderStatus.CANCELLED) {
+            List<OrderItem> orderItems = orderItemRepository.findByOrderId(orderId);
+            for (int j = 0; j < orderItems.size(); j++) {
+                ProductItem productItem = productItemRepository.findById(orderItems.get(j).getProductItemId()).get();
+                productItem.setQuantity(productItem.getQuantity() + orderItems.get(j).getQuantity());
+                productItem.setTotalSold(productItem.getTotalSold() - orderItems.get(j).getQuantity() );
+                productItemRepository.save(productItem);
+                Product product = productRepository.findById(productItem.getProductId()).get();
+                product.setTotalSold(product.getTotalSold() - orderItems.get(j).getQuantity());
+                productRepository.save(product);
+            }
         }
     }
 

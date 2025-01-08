@@ -111,5 +111,22 @@ public class StatisticsService {
         return orderStatusHistoryRepository.countPendingOrders();
     }
 
+    public Long getTotalPackedOrders() {
+        return orderStatusHistoryRepository.countPackedOrders();
+    }
+
+    public Long getTotalShippedOrders() {
+        return orderStatusHistoryRepository.countShippedOrders();
+    }
+
+    public Long getTotalReturnedOrders() {
+        return orderStatusHistoryRepository.countReturnedOrders();
+    }
+
+    public Long getTotalConfirmedOrders() {
+        return orderStatusHistoryRepository.countConfirmedOrders();
+    }
+
+
 }
 

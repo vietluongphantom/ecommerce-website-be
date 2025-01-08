@@ -274,6 +274,7 @@ public class ProductServiceImpl implements IProductService {
                     // Xử lý Optional Brand để tránh NoSuchElementException
                     Optional<Brand> brand = brandRepository.findById(product.getBrandId());
                     List<String> imageList = imagesRepository.findLinkByProductId(product.getId());
+                    Rate rateStar = rateRepository.findByProductId(product.getId());
 
                     ProductResponse productResponse = ProductResponse.builder()
                             .id(product.getId())
@@ -282,10 +283,10 @@ public class ProductServiceImpl implements IProductService {
                             .minPrice(product.getMinPrice())
                             .totalSold(product.getTotalSold())
                             .thumbnail(product.getThumbnail())
-
                             .brandId(brand.get().getId())
                             .brandName(brand.get().getName())
-
+                            .quantityRate(rateStar.getQuantity())
+                            .averageRate(rateStar.getAverageStars())
                             .images(imageList)
                             .categoryNames(categoryNames)
                             .categories(product.getCategoryList())
@@ -395,6 +396,5 @@ public class ProductServiceImpl implements IProductService {
         return productRepository.findById(productId)
                 .orElseThrow(() -> new DataNotFoundException("Product not found with ID: " + productId));
     }
-
 }
 

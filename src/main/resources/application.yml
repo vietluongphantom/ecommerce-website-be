@@ -40,8 +40,8 @@ spring:
 security:
   jwt:
     secret-key: ${JWT_SECRET_KEY}
-    expiration-time: 10000000
-    expiration-refresh-token: 80000000
+    expiration-time: 100000000
+    expiration-refresh-token: 800000000
 
 logging:
   level:

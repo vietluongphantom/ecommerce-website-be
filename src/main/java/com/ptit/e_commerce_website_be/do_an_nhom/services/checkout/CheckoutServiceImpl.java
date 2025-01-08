@@ -10,6 +10,7 @@ import com.ptit.e_commerce_website_be.do_an_nhom.models.enums.DiscountType;
 import com.ptit.e_commerce_website_be.do_an_nhom.repositories.*;
 import com.ptit.e_commerce_website_be.do_an_nhom.services.address.AddressService;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.LockModeType;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -37,10 +38,11 @@ public class CheckoutServiceImpl implements ICheckoutService {
     private final AddressRepository addressRepository;
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
+    private final InventoryRepository inventoryRepository;
 
     @Transactional
     @Override
-    public List<OrdersDTO> checkoutCart(Long userId, boolean method, String note, List<Long> selectedCartItems){
+    public List<OrdersDTO> checkoutCart(Long userId, boolean method, String note, List<Long> selectedCartItems, Address address){
         validateCheckoutRequest(userId);
         // Lấy danh sách các CartItem được chọn
         List<CartItem> cartItemList = cartItemRepository.findByUserIdAndIdIn(userId, selectedCartItems);
@@ -49,7 +51,7 @@ public class CheckoutServiceImpl implements ICheckoutService {
                 .orElseThrow(()-> new DataNotFoundException("Cannot find user by this id"));
         // Nhóm các CartItem theo shopId
         Map<Long, List<CartItem>> cartItemsByShop = groupCartItemsByShopId(cartItemList);
-        Address address = addressRepository.findByUserId(userId).orElseThrow(()-> new DataNotFoundException(""));
+//        Address address = addressRepository.findByUserId(userId).orElseThrow(()-> new DataNotFoundException(""));
         String addressReceiver = address.getCommune() + ", " + address.getDistrict() + ", " + address.getProvince() + "," + address.getCountry();
         List<Orders> ordersList = new ArrayList<>();
         for (Map.Entry<Long, List<CartItem>> entry : cartItemsByShop.entrySet()) {
@@ -70,8 +72,8 @@ public class CheckoutServiceImpl implements ICheckoutService {
             orders.setTotalPrice(orderTotalPrice);
             orders.setAddress(addressReceiver);
             orders.setAddressDetail(address.getAddressDetail());
-            orders.setBuyer(user.getFullName());
-            orders.setReceiverPhone(user.getPhone());
+            orders.setBuyer(address.getFullName());
+            orders.setReceiverPhone(address.getPhone());
             orderRepository.save(orders);
             ordersList.add(orders);  // Thêm đơn hàng vào danh sách
         }
@@ -179,12 +181,16 @@ public class CheckoutServiceImpl implements ICheckoutService {
     @Transactional
     private  void minusQuantityProductItem(Long productItemId, Integer quantityProductItem){
         ProductItem productItem = productItemRepository.findById(productItemId).get();
+//        Inventory inventory =  inventoryRepository.f
+        productItem.setTotalSold(productItem.getTotalSold() + quantityProductItem);
         Product product = productRepository.findById(productItem.getProductId()).orElseThrow(() -> new DataNotFoundException("Không tìm thấy sản phẩm"));
         if (productItem.getQuantity() < quantityProductItem){
             throw new QuantityExceededException("Số lượng sản phẩm " + product.getName() + " hiện tại vượt quá số lượng sản phẩm của shop");
         }
+        product.setTotalSold(product.getTotalSold() + quantityProductItem);
         productItem.setQuantity(productItem.getQuantity() - quantityProductItem);
         productItemRepository.save(productItem);
+        productRepository.save(product);
     }
 
 

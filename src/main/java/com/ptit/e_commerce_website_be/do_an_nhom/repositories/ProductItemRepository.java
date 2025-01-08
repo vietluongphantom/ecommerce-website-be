@@ -4,7 +4,9 @@ package com.ptit.e_commerce_website_be.do_an_nhom.repositories;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.dtos.DetailProductItemDTO;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.Product;
 import com.ptit.e_commerce_website_be.do_an_nhom.models.entities.ProductItem;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -71,6 +73,7 @@ public interface ProductItemRepository extends JpaRepository<ProductItem, Long> 
     @Query("SELECT SUM(pi.quantity) FROM ProductItem pi WHERE pi.productId = :id")
     Long getQuantityProduct(@Param("id") Long id);
 
+//    @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<ProductItem> findById(Long id);
 
     @Query("SELECT pi FROM ProductItem pi LEFT JOIN Product p ON p.shopId = ?2 WHERE pi.productId = ?1 AND pi.isDelete = false")

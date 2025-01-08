@@ -78,7 +78,7 @@ public class ProductItem {
     private  BigDecimal importPrice;
 
     @Column(name = "total_sold")
-    private  Long totalSold;
+    private  long totalSold;
 
 }
 

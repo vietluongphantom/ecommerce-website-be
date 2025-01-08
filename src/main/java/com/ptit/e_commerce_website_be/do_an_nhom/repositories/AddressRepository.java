@@ -10,5 +10,4 @@ public interface AddressRepository extends JpaRepository<Address, Long> {
 //    Optional<List<Address>>  findByUserId(Long userId) throws Exception;
     Optional<Address> findByUserId(Long userId);
     boolean existsByUserId(Long userId);
-
 }

@@ -156,12 +156,12 @@ public class InventoryServiceImpl implements InventoryService{
                 Row row1 = sheet.createRow(rowIndex);
                 rowIndex++;
                 row1.createCell(0).setCellValue(p.getId());
-//                row1.createCell(1).setCellValue(p.getProductId());
-                row1.createCell(1).setCellValue(p.getName());
-                row1.createCell(2).setCellValue(p.getSkuCode());
-                row1.createCell(3).setCellValue(p.getPrice().doubleValue());
-                row1.createCell(4).setCellValue(p.getImportPrice().doubleValue());
-                row1.createCell(5).setCellValue(p.getQuantity());
+                row1.createCell(1).setCellValue(p.getProductId());
+                row1.createCell(2).setCellValue(p.getName());
+                row1.createCell(3).setCellValue(p.getSkuCode());
+                row1.createCell(4).setCellValue(p.getPrice().doubleValue());
+                row1.createCell(5).setCellValue(p.getImportPrice().doubleValue());
+                row1.createCell(6).setCellValue(p.getQuantity());
 //                row1.createCell(6).setCellValue(p.getWarehouse());
                 row1.createCell(7).setCellValue(p.getCreateAt().format(formatter));
             }

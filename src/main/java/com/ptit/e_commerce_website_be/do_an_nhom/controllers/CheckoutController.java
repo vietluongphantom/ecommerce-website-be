@@ -41,7 +41,8 @@ public class CheckoutController {
                     userId, // Thay thế checkoutRequest.getUserId() bằng userId
                     checkoutRequest.isMethod(),
                     checkoutRequest.getNote(),
-                    checkoutRequest.getSelectedCartItems()
+                    checkoutRequest.getSelectedCartItems(),
+                    checkoutRequest.getAddress()
             );
 
             BigDecimal totalPrice = BigDecimal.ZERO;

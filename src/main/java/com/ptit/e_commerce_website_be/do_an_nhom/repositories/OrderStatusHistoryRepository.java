@@ -23,6 +23,20 @@ public interface OrderStatusHistoryRepository extends JpaRepository<OrderStatusH
     @Query("SELECT COUNT(o) FROM Orders o WHERE o.status = 'PENDING'")
     Long countPendingOrders();
 
+    @Query("SELECT COUNT(o) FROM Orders o WHERE o.status = 'PACKED'")
+    Long countPackedOrders();
+
+    @Query("SELECT COUNT(o) FROM Orders o WHERE o.status = 'SHIPPED'")
+    Long countShippedOrders();
+
+    @Query("SELECT COUNT(o) FROM Orders o WHERE o.status = 'RETURNED'")
+    Long countReturnedOrders();
+
+    @Query("SELECT COUNT(o) FROM Orders o WHERE o.status = 'CONFIRMED'")
+    Long countConfirmedOrders();
+
+
+
     @Query("SELECT osh.orderId FROM OrderStatusHistory osh WHERE osh.status = :status AND osh.changedAt BETWEEN :startDate AND :endDate")
     List<Long> findCompletedOrderIds(@Param("status") Orders.OrderStatus status,
                                      @Param("startDate") LocalDateTime startDate,

@@ -43,7 +43,7 @@ public class Product {
     private Integer status;
 
     @Column(name = "total_sold")
-    private Long totalSold;
+    private long totalSold;
 
     @Column(name = "product_view")
     private Integer productView;

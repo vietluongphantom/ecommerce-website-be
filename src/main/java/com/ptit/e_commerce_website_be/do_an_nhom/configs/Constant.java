@@ -9,8 +9,8 @@ public class Constant {
 
     // excel
     public static final String xlsx = ".xlsx";
-    public static final String HEADER_ALL_LIST_INVENTORY[] = {"id","product id", "name", "sku code", "price", "import price", "quantity", "warehouse", "create at"};
-    public static final String HEADER_ALL_LIST_IMPORT[] = {"id","product id", "name", "sku code", "price", "import price", "quantity", "warehouse", "supplier", "location",  "create at"};
+    public static final String HEADER_ALL_LIST_INVENTORY[] = {"id","product id", "name", "sku code", "price", "import price", "quantity", "create at"};
+    public static final String HEADER_ALL_LIST_IMPORT[] = {"id","product id", "name", "sku code", "price", "import price", "quantity", "supplier", "supplier", "location",  "create at"};
     public static String SHEET_NAME = "sheetForInventoryData";
     public static final String HEADER_ALL_LIST_PRODUCT[] = {"id", "name", "min price", "total sold", "brand", "categories", "image", "rate star", "quantity", "description",  "create at"};
 }

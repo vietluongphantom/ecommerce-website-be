@@ -67,11 +67,19 @@ public class OrdersService {
         Long pendingCount = ordersRepository.countByShopIdAndStatus(shopId, Orders.OrderStatus.PENDING);
         Long cancelledCount = ordersRepository.countByShopIdAndStatus(shopId, Orders.OrderStatus.CANCELLED);
         Long completedCount = ordersRepository.countByShopIdAndStatus(shopId, Orders.OrderStatus.COMPLETED);
+        Long packedCount = ordersRepository.countByShopIdAndStatus(shopId, Orders.OrderStatus.PACKED);
+        Long shippedCount = ordersRepository.countByShopIdAndStatus(shopId, Orders.OrderStatus.SHIPPED);
+//        Long returnedCount = ordersRepository.countByShopIdAndStatus(shopId, Orders.OrderStatus.RETURNED);
+        Long confirmedCount = ordersRepository.countByShopIdAndStatus(shopId, Orders.OrderStatus.CONFIRMED);
 
         Map<String, Long> response = new HashMap<>();
         response.put("pendingOrders", pendingCount);
         response.put("cancelledOrders", cancelledCount);
         response.put("completedOrders", completedCount);
+        response.put("packedOrders", packedCount);
+        response.put("shippedOrders", shippedCount);
+//        response.put("returnedOrders", returnedCount);
+        response.put("confirmedOrders", confirmedCount);
 
         return response;
     }
